@@ -6,6 +6,7 @@
 
 enum ShapeType
 {
+	JOINT = -1,
 	PLANE = 0,
 	SPHERE,
 	BOX,
@@ -23,7 +24,7 @@ public:
 	ShapeType GetShapeID() { return m_shapeID; }
 
 	bool IsKinematic() { return m_isKinematic; }
-	bool SetKinematic(bool a_state) { return a_state = m_isKinematic; }
+	bool SetKinematic(bool a_state) { return m_isKinematic = a_state; }
 
 	float GetElasticity() { return m_elasticity; }
 

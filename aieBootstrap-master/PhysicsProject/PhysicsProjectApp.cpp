@@ -2,6 +2,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box.h"
+#include "Spring.h"
 #include "Texture.h"
 #include "Font.h"
 #include "Input.h"
@@ -38,8 +39,9 @@ bool PhysicsProjectApp::startup() {
 	// If it is too high it causes the sim to stutter and reduce stability.
 	m_physicsScene->SetTimeStep(0.01f);
 
-	DrawRect();
+	/*DrawRect();*/
 	/*SphereAndPlane();*/
+	SpringTest(10);
 
 	return true;
 }
@@ -103,6 +105,8 @@ void PhysicsProjectApp::DrawRect()
 
 	Sphere* ball = new Sphere(glm::vec2(5, 10), glm::vec2(0), 1, 3, glm::vec4(0, 0, 1, 1));
 	ball->SetRotation(0.5);
+	m_physicsScene->AddActor(ball);
+	ball->SetKinematic(true);
 }
 
 void PhysicsProjectApp::SphereAndPlane()
@@ -119,4 +123,33 @@ void PhysicsProjectApp::SphereAndPlane()
 
 	Plane* plane = new Plane();
 	m_physicsScene->AddActor(plane);
+}
+
+void PhysicsProjectApp::SpringTest(int a_amount)
+{
+	Sphere* prev = nullptr;
+	for (int i = 0; i < a_amount; i++)
+	{
+		// This will need to spawn the sphere at the bottom of the previous one,
+		// to make a pendulum that is effected by gravity
+		Sphere* sphere = new Sphere(glm::vec2(i * 3, 30 - i * 5), glm::vec2(0), 10, 2, glm::vec4(0, 0, 1, 1));
+
+		if (i == 0)
+		{
+			sphere->SetKinematic(true);
+		}
+
+		m_physicsScene->AddActor(sphere);
+
+		if (prev)
+		{
+			m_physicsScene->AddActor(new Spring(sphere, prev, 10, 500));
+		}
+
+		prev = sphere;
+	}
+
+	Box* box = new Box(glm::vec2(0, -20), glm::vec2(0), 0.3f, 20, 8, 2);
+	box->SetKinematic(true);
+	m_physicsScene->AddActor(box);
 }

@@ -19,12 +19,22 @@ Rigidbody::Rigidbody(ShapeType a_shapeID, glm::vec2 a_position, glm::vec2 a_velo
 
 void Rigidbody::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 {
+	if (m_isKinematic)
+	{
+		m_velocity = glm::vec2(0);
+		m_angularVelocity = 0.0f;
+		return;
+	}
+
 	m_velocity -= m_velocity * m_linearDrag * a_timeStep;
 	m_angularVelocity -= m_angularVelocity * m_angularDrag * a_timeStep;
 
 	if (glm::length(m_velocity) < 0.001f)
 	{
-		m_velocity = glm::vec2(0);
+		if (glm::length(m_velocity) < glm::length(a_gravity) * m_linearDrag * a_timeStep)
+		{
+			m_velocity = glm::vec2(0);
+		}
 	}
 
 	if (abs(m_angularVelocity) < 0.001f)
@@ -82,4 +92,9 @@ void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, g
 			PhysicsScene::ApplyContactForces(this, a_otherActor, normal, a_pen);
 		}
 	}
+}
+
+glm::vec2 Rigidbody::ToWorld(glm::vec2 a_localPos)
+{
+	return m_position + m_localX * a_localPos.x + m_localY * a_localPos.y;
 }

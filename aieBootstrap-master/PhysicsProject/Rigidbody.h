@@ -14,7 +14,7 @@ public:
 
 	glm::vec2 GetPosition() const { return m_position; }
 	glm::vec2 GetVelocity() { return m_velocity; }
-	float GetMass() { return m_mass; }
+	float GetMass() { return m_isKinematic ? INT_MAX : m_mass; }
 	float GetRotation() { return m_rotation; }
 
 	float GetMoment() { return m_isKinematic ? INT_MAX : m_moment; }
@@ -25,6 +25,8 @@ public:
 
 	float GetLinearDrag() { return m_linearDrag; }
 	float GetAngularDrag() { return m_angularDrag; }
+
+	glm::vec2 ToWorld(glm::vec2 a_localPos);
 
 protected:
 	glm::vec2 m_position;
@@ -37,5 +39,9 @@ protected:
 
 	float m_linearDrag;
 	float m_angularDrag;
+
+	// These will store the local x and y axes of the rigidbody based on it's angle of rotation
+	glm::vec2 m_localX;
+	glm::vec2 m_localY;
 };
 

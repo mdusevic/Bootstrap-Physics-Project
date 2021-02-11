@@ -19,6 +19,7 @@ public:
 
 	void DrawRect();
 	void SphereAndPlane();
+	void SpringTest(int a_amount);
 
 protected:
 

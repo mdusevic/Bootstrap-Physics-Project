@@ -99,11 +99,18 @@ void PhysicsScene::CheckForCollision()
 			int shapeID_out = objOuter->GetShapeID();
 			int shapeID_in = objInner->GetShapeID();
 
-			int functionIndex = (shapeID_out * SHAPE_COUNT) + shapeID_in;
-			fn collisionFunctionPtr = collisionFunctionArray[functionIndex];
-			if (collisionFunctionPtr != nullptr)
+			// This will check to ensure we do not the 
+			if (shapeID_in >= 0 && shapeID_out >= 0)
 			{
-				collisionFunctionPtr(objOuter, objInner);
+				// Uses our function pointers (fn)
+				int functionIndex = (shapeID_out * SHAPE_COUNT) + shapeID_in;
+				fn collisionFunctionPtr = collisionFunctionArray[functionIndex];
+
+				if (collisionFunctionPtr != nullptr)
+				{
+					// Check if the collision occurs
+					collisionFunctionPtr(objOuter, objInner);
+				}
 			}
 		}
 	}
