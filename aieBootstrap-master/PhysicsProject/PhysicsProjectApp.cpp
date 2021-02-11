@@ -41,7 +41,8 @@ bool PhysicsProjectApp::startup() {
 
 	/*DrawRect();*/
 	/*SphereAndPlane();*/
-	SpringTest(10);
+	/*SpringTest(10);*/
+	TriggerTest();
 
 	return true;
 }
@@ -180,4 +181,24 @@ void PhysicsProjectApp::SpringTest(int a_amount)
 	Box* box = new Box(glm::vec2(0, -20), glm::vec2(0), 0.3f, 20, 8, 2);
 	box->SetKinematic(true);
 	m_physicsScene->AddActor(box);
+}
+
+void PhysicsProjectApp::TriggerTest()
+{
+	Sphere* ball1 = new Sphere(glm::vec2(-20, 0), glm::vec2(10), 4, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball2 = new Sphere(glm::vec2(10, -20), glm::vec2(-10), 4, 4, glm::vec4(0, 0.5, 0.5, 1));
+
+	ball2->SetKinematic(true);
+	ball2->SetTrigger(true);
+
+	m_physicsScene->AddActor(ball1);
+	m_physicsScene->AddActor(ball2);
+	m_physicsScene->AddActor(new Plane(glm::vec2(0, 1), -30));
+	m_physicsScene->AddActor(new Plane(glm::vec2(1, 0), -50));
+	m_physicsScene->AddActor(new Plane(glm::vec2(-1, 0), -50));
+	m_physicsScene->AddActor(new Box(glm::vec2(20, 10), glm::vec2(8, 0), 0.5, 4, 8, 4));
+	m_physicsScene->AddActor(new Box(glm::vec2(-40, 10), glm::vec2(-8, 0), 0.5, 4, 8, 4));
+
+	ball2->triggerEnter = [=](PhysicsObject* other) { std::cout << "Entered: " << other << std::endl; };
+	ball2->triggerExit = [=](PhysicsObject* other) { std::cout << "Exited: " << other << std::endl; };
 }

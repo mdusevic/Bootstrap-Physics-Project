@@ -34,7 +34,7 @@ public:
 
 	std::function<void(PhysicsObject*)> m_collisionCallback;
 
-	void TriggerEnter(PhysicsObject* a_otherActor);
+	void TriggerEntered(PhysicsObject* a_otherActor);
 	std::function<void(PhysicsObject*)> triggerEnter;
 	std::function<void(PhysicsObject*)> triggerExit;
 	bool IsTrigger() { return m_isTrigger; }
@@ -42,6 +42,8 @@ public:
 
 protected:
 	bool m_isTrigger;
+	std::list<PhysicsObject*> m_objectInside;
+	std::list<PhysicsObject*> m_objectInsideThisFrame;
 
 	glm::vec2 m_position;
 	glm::vec2 m_velocity;

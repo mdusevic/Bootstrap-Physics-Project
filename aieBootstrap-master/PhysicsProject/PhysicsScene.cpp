@@ -118,6 +118,11 @@ void PhysicsScene::CheckForCollision()
 
 void PhysicsScene::ApplyContactForces(Rigidbody* a_actor1, Rigidbody* a_actor2, glm::vec2 a_collisionNorm, float a_pen)
 {
+	if ((a_actor1 && a_actor1->IsTrigger()) || (a_actor2 && a_actor2->IsTrigger()))
+	{
+		return;
+	}
+
 	float body2Mass = a_actor2 ? a_actor2->GetMass() : INT_MAX;
 	float body1Factor = body2Mass / (a_actor1->GetMass() + body2Mass);
 

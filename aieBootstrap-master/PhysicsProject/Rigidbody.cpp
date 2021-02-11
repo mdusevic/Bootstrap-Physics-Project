@@ -1,5 +1,6 @@
 #include "Rigidbody.h"
 #include "PhysicsScene.h"
+#include <iostream>
 
 #define MIN_LINEAR_THRESHOLD 0.001f;
 #define MIN_ANGULAR_THERESHOLD 0.001f;
@@ -20,6 +21,34 @@ Rigidbody::Rigidbody(ShapeType a_shapeID, glm::vec2 a_position, glm::vec2 a_velo
 
 void Rigidbody::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 {
+	// Checks if it is a trigger
+	if (m_isTrigger)
+	{
+		// This will let us check every object that is inside a trigger object and
+		// call a triggerEnter on if they haven't registered inside of the trigger this frame,
+		// they must have exited so we can remove them from the list and then call triggerExit
+		for (auto it = m_objectInside.begin(); it != m_objectInside.end(); it ++)
+		{
+			if (std::find(m_objectInsideThisFrame.begin(), m_objectInsideThisFrame.end(), *it) == m_objectInsideThisFrame.end())
+			{
+				if (triggerExit)
+				{
+					triggerExit(*it);
+				}
+
+				it = m_objectInside.erase(it);
+
+				if (it == m_objectInside.end())
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	// Clear the list now for the next frame
+	m_objectInsideThisFrame.clear();
+
 	if (m_isKinematic)
 	{
 		m_velocity = glm::vec2(0);
@@ -57,6 +86,10 @@ void Rigidbody::ApplyForce(glm::vec2 a_force, glm::vec2 a_pos)
 
 void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, glm::vec2* a_collisionNormal, float a_pen)
 {
+	// Register that these two objects have overlapped this frame
+	m_objectInsideThisFrame.push_back(a_otherActor);
+	a_otherActor->m_objectInsideThisFrame.push_back(this);
+
 	// Find the vector between their centers, or use the provided direction of force, and make sure it's normalised
 	glm::vec2 normal = glm::normalize(a_collisionNormal ? *a_collisionNormal : a_otherActor->GetPosition() - GetPosition());
 
@@ -84,18 +117,27 @@ void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, g
 
 		glm::vec2 impact = (1.0f + elasticity) * mass1 * mass2 /
 			(mass1 + mass2) * (cp_velocity1 - cp_velocity2) * normal;
-
-		ApplyForce(-impact, a_contact - m_position);
-		a_otherActor->ApplyForce(impact, a_contact - a_otherActor->GetPosition());
-
-		if (m_collisionCallback != nullptr)
+		
+		if (!m_isTrigger && !a_otherActor->IsTrigger())
 		{
-			m_collisionCallback(a_otherActor);
+			ApplyForce(-impact, a_contact - m_position);
+			a_otherActor->ApplyForce(impact, a_contact - a_otherActor->GetPosition());
+
+			if (m_collisionCallback != nullptr)
+			{
+				m_collisionCallback(a_otherActor);
+			}
+
+			if (a_otherActor->m_collisionCallback)
+			{
+				a_otherActor->m_collisionCallback(this);
+			}
 		}
 
-		if (a_otherActor->m_collisionCallback)
+		else
 		{
-			a_otherActor->m_collisionCallback(this);
+			TriggerEntered(a_otherActor);
+			a_otherActor->TriggerEntered(this);
 		}
 
 		if (a_pen > 0)
@@ -108,4 +150,16 @@ void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, g
 glm::vec2 Rigidbody::ToWorld(glm::vec2 a_localPos)
 {
 	return m_position + m_localX * a_localPos.x + m_localY * a_localPos.y;
+}
+
+void Rigidbody::TriggerEntered(PhysicsObject* a_otherActor)
+{
+	if (m_isTrigger && std::find(m_objectInside.begin(), m_objectInside.end(), a_otherActor) == m_objectInside.end())
+	{
+		m_objectInside.push_back(a_otherActor);
+		if (triggerEnter != nullptr)
+		{
+			triggerEnter(a_otherActor);
+		}
+	}
 }
