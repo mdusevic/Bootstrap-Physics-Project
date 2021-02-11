@@ -13,6 +13,8 @@ public:
 	virtual void FixedUpdate(glm::vec2 a_gravity, float a_timeStep);
 	virtual void MakeGizmo();
 
+	virtual bool IsInside(glm::vec2 a_point) { return false; }
+
 	bool CheckBoxCorners(const Box& a_box, glm::vec2& a_contact, int& a_numContacts, float& a_pen, glm::vec2& a_edgeNormal);
 
 	float GetWidth() { return m_extents.x * 2; }

@@ -62,6 +62,14 @@ void PhysicsProjectApp::update(float deltaTime) {
 	m_physicsScene->Update(deltaTime);
 	m_physicsScene->Draw();
 
+	if (input->isMouseButtonDown(0))
+	{
+		int xScreen, yScreen;
+		input->getMouseXY(&xScreen, &yScreen);
+		glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
+		aie::Gizmos::add2DCircle(worldPos, 5, 32, glm::vec4(0.7f));
+	}
+
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
 		quit();
@@ -72,19 +80,39 @@ void PhysicsProjectApp::draw() {
 	// wipe the screen to the background colour
 	clearScreen();
 
+
+
 	// begin drawing sprites
 	m_2dRenderer->begin();
 
-	static float aspectRatio = 16.0f / 9.0f;
-	aie::Gizmos::draw2D(glm::ortho<float>(-100, 100, -100 / aspectRatio, 100 / aspectRatio, -1.0f, 1.0f));
+	// If X-axis = -100 to 100, Y-axis = -56.25 to 56.25
+	aie::Gizmos::draw2D(glm::ortho<float>(-m_extents, m_extents, -m_extents / m_aspectRatio, m_extents / m_aspectRatio, -1.0f, 1.0f));
 
 	// draw your stuff here!
+	char fps[32];
+	sprintf_s(fps, 32, "FPS: %i", getFPS());
+	m_2dRenderer->drawText(m_font, fps, 0, 720 - 32);
 	
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
 
 	// done drawing sprites
 	m_2dRenderer->end();
+}
+
+glm::vec2 PhysicsProjectApp::ScreenToWorld(glm::vec2 a_screenPos)
+{
+	glm::vec2 worldPos = a_screenPos;
+
+	// We will move the center of the screen to (0, 0)
+	worldPos.x -= getWindowWidth() / 2;
+	worldPos.y -= getWindowHeight() / 2;
+
+	// Scale this according to the extents
+	worldPos.x *= 2.0f * m_extents / getWindowWidth();
+	worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
+
+	return worldPos;
 }
 
 void PhysicsProjectApp::DrawRect()

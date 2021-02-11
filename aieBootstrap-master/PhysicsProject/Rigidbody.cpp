@@ -12,6 +12,7 @@ Rigidbody::Rigidbody(ShapeType a_shapeID, glm::vec2 a_position, glm::vec2 a_velo
 	m_rotation = a_rotation;
 	m_angularVelocity = 0;
 	m_isKinematic = false;
+	m_isTrigger = false;
 	m_elasticity = 0.8f;
 	m_linearDrag = 0.3f;
 	m_angularDrag = 0.3f;
@@ -86,6 +87,16 @@ void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, g
 
 		ApplyForce(-impact, a_contact - m_position);
 		a_otherActor->ApplyForce(impact, a_contact - a_otherActor->GetPosition());
+
+		if (m_collisionCallback != nullptr)
+		{
+			m_collisionCallback(a_otherActor);
+		}
+
+		if (a_otherActor->m_collisionCallback)
+		{
+			a_otherActor->m_collisionCallback(this);
+		}
 
 		if (a_pen > 0)
 		{

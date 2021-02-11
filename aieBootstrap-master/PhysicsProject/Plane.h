@@ -17,6 +17,8 @@ public:
 	virtual void ResetPosition() {};
 	virtual void MakeGizmo();
 
+	virtual bool IsInside(glm::vec2 a_point) { return false; }
+
 	void ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact);
 
 	glm::vec2 GetNormal() { return m_normal; }

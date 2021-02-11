@@ -21,6 +21,8 @@ public:
 	virtual void Debug() = 0;
 	virtual void ResetPosition() {};
 
+	virtual bool IsInside(glm::vec2 a_point) = 0;
+
 	ShapeType GetShapeID() { return m_shapeID; }
 
 	bool IsKinematic() { return m_isKinematic; }
