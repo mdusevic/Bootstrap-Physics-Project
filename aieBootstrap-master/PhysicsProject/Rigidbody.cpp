@@ -113,7 +113,7 @@ void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, g
 		float mass1 = 1.0f / (1.0f / m_mass + (radius1 * radius1) / GetMoment());
 		float mass2 = 1.0f / (1.0f / a_otherActor->m_mass + (radius2 * radius2) / a_otherActor->GetMoment());
 
-		float elasticity = 1.0f; 
+		float elasticity = (m_elasticity + a_otherActor->GetElasticity()) / 2.0f; 
 
 		glm::vec2 impact = (1.0f + elasticity) * mass1 * mass2 /
 			(mass1 + mass2) * (cp_velocity1 - cp_velocity2) * normal;

@@ -2,12 +2,12 @@
 
 #include "Application.h"
 #include "Renderer2D.h"
-
 #include "PhysicsScene.h"
+#include "Box.h"
 
-class PhysicsProjectApp : public aie::Application {
+class PhysicsProjectApp : public aie::Application
+{
 public:
-
 	PhysicsProjectApp();
 	virtual ~PhysicsProjectApp();
 
@@ -17,15 +17,19 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
-	glm::vec2 ScreenToWorld(glm::vec2 a_screenPos);
+	// Main Game
+	void DrawBackground();
+	void Spawner(float a_deltaTime);
 
+	// Test Scenes
 	void DrawRect();
 	void SphereAndPlane();
 	void SpringTest(int a_amount);
 	void TriggerTest();
 
-protected:
+	glm::vec2 ScreenToWorld(glm::vec2 a_screenPos);
 
+protected:
 	aie::Renderer2D*	m_2dRenderer;
 	aie::Font*			m_font;
 
@@ -33,4 +37,8 @@ protected:
 
 	const float m_aspectRatio = 16.0f / 9.0f;
 	const float m_extents = 100.0f;
+
+	Box* spawner;
+	bool leftDir = false;
+	float m_spawnerSpeed = 15.0f;
 };

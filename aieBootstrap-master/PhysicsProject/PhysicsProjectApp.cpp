@@ -7,6 +7,7 @@
 #include "Font.h"
 #include "Input.h"
 #include "glm\ext.hpp"
+
 #include <Gizmos.h>
 
 PhysicsProjectApp::PhysicsProjectApp()
@@ -19,9 +20,9 @@ PhysicsProjectApp::~PhysicsProjectApp()
 
 }
 
-bool PhysicsProjectApp::startup() {
-	
-	// Increases 2D line coun to maximise the number of objects we can draw.
+bool PhysicsProjectApp::startup()
+{
+	// Increases 2D line count to maximise the number of objects we can draw.
 	aie::Gizmos::create(255U, 255U, 65535U, 65535U);
 
 	m_2dRenderer = new aie::Renderer2D();
@@ -34,28 +35,26 @@ bool PhysicsProjectApp::startup() {
 
 	m_physicsScene->SetGravity(glm::vec2(0, -10));
 
-	// Lower the valu, the more accurate the simulation will be;
+	// Lower the value, the more accurate the simulation will be;
 	// but it will increase the processing time required.
 	// If it is too high it causes the sim to stutter and reduce stability.
 	m_physicsScene->SetTimeStep(0.01f);
 
-	/*DrawRect();*/
-	/*SphereAndPlane();*/
-	/*SpringTest(10);*/
-	TriggerTest();
+	DrawBackground();
 
 	return true;
 }
 
-void PhysicsProjectApp::shutdown() {
-
+void PhysicsProjectApp::shutdown()
+{
 	delete m_font;
 	delete m_2dRenderer;
 }
 
-void PhysicsProjectApp::update(float deltaTime) {
-
-	// input example
+// Update Function
+void PhysicsProjectApp::update(float deltaTime)
+{
+	// Input example
 	aie::Input* input = aie::Input::getInstance();
 
 	aie::Gizmos::clear();
@@ -63,59 +62,196 @@ void PhysicsProjectApp::update(float deltaTime) {
 	m_physicsScene->Update(deltaTime);
 	m_physicsScene->Draw();
 
-	if (input->isMouseButtonDown(0))
-	{
-		int xScreen, yScreen;
-		input->getMouseXY(&xScreen, &yScreen);
-		glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
-		aie::Gizmos::add2DCircle(worldPos, 5, 32, glm::vec4(0.7f));
-	}
+	// Circle on click
+	//if (input->isMouseButtonDown(0))
+	//{
+	//	int xScreen, yScreen;
+	//	input->getMouseXY(&xScreen, &yScreen);
+	//	glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
+	//	aie::Gizmos::add2DCircle(worldPos, 5, 32, glm::vec4(0.7f));
+	//}
 
-	// exit the application
+	Spawner(deltaTime);
+
+	// Exits the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
+	{
 		quit();
+	}
 }
 
-void PhysicsProjectApp::draw() {
-
-	// wipe the screen to the background colour
+// Draw Function
+void PhysicsProjectApp::draw()
+{
+	// Wipes the screen to the background colour
 	clearScreen();
 
-
-
-	// begin drawing sprites
+	// Begin drawing sprites
 	m_2dRenderer->begin();
 
 	// If X-axis = -100 to 100, Y-axis = -56.25 to 56.25
 	aie::Gizmos::draw2D(glm::ortho<float>(-m_extents, m_extents, -m_extents / m_aspectRatio, m_extents / m_aspectRatio, -1.0f, 1.0f));
 
-	// draw your stuff here!
+	// Draw your stuff here!
+
+	// Draws FPS counter
 	char fps[32];
 	sprintf_s(fps, 32, "FPS: %i", getFPS());
 	m_2dRenderer->drawText(m_font, fps, 0, 720 - 32);
 	
-	// output some text, uses the last used colour
+	// Output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
 
-	// done drawing sprites
+	// Done drawing sprites
 	m_2dRenderer->end();
 }
 
-glm::vec2 PhysicsProjectApp::ScreenToWorld(glm::vec2 a_screenPos)
+// ---- Main Game Scenes ----
+void PhysicsProjectApp::DrawBackground()
 {
-	glm::vec2 worldPos = a_screenPos;
+	// Creates spawner 
+	spawner = new Box(glm::vec2(0, 45), glm::vec2(0), 0.0f, 1.0f, 4.0f, 1.2f, glm::vec4(1, 1, 1, 1));
+	spawner->SetKinematic(true);
+	m_physicsScene->AddActor(spawner);
 
-	// We will move the center of the screen to (0, 0)
-	worldPos.x -= getWindowWidth() / 2;
-	worldPos.y -= getWindowHeight() / 2;
+	int gridWidth = 10;
+	int gridHeight = 10;
+	int spacing = 12;
+	int count = 0;
 
-	// Scale this according to the extents
-	worldPos.x *= 2.0f * m_extents / getWindowWidth();
-	worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
+	// Draws grid of balls
+	// First two rows
+	for (int y = -1; y < 1; y++)
+	{
+		for (int x = -5; x < 5; x++)
+		{
+			if (y % 2 == 0)
+			{
+				if (count < 9)
+				{
+					Sphere* sphere = new Sphere(glm::vec2((x * spacing + 6) + 4, (y * spacing) + 35), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+					m_physicsScene->AddActor(sphere);
+					sphere->SetKinematic(true);
+					count++;
+				}
+			}
 
-	return worldPos;
+			else
+			{
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 4, (y * spacing) + 35), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				m_physicsScene->AddActor(sphere);
+				sphere->SetKinematic(true);
+			}
+		}
+	}
+
+	// Left side two rows
+	for (int y = -1; y < 1; y++)
+	{
+		for (int x = -1; x < 1; x++)
+		{
+			if (y % 2 == 0)
+			{
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing + 6) - 44, (y * spacing) + 10), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				m_physicsScene->AddActor(sphere);
+				sphere->SetKinematic(true);
+			}
+
+			else
+			{
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing) - 44, (y * spacing) + 10), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				m_physicsScene->AddActor(sphere);
+				sphere->SetKinematic(true);
+			}
+		}
+	}
+
+	// Right side two rows
+	for (int y = -1; y < 1; y++)
+	{
+		for (int x = -1; x < 1; x++)
+		{
+			if (y % 2 == 0)
+			{
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing - 6) + 52, (y * spacing) + 10), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				m_physicsScene->AddActor(sphere);
+				sphere->SetKinematic(true);
+			}
+
+			else
+			{
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 52, (y * spacing) + 10), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				m_physicsScene->AddActor(sphere);
+				sphere->SetKinematic(true);
+			}
+		}
+	}
+
+	count = 0;
+
+	// Middle two rows
+	for (int y = -1; y < 1; y++)
+	{
+		for (int x = -3; x < 3; x++)
+		{
+			if (y % 2 == 0)
+			{
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing - 6) + 10, (y * spacing) - 2), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				m_physicsScene->AddActor(sphere);
+				sphere->SetKinematic(true);
+			}
+
+			else
+			{
+				if (count < 5)
+				{
+					Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 10, (y * spacing) - 2), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+					m_physicsScene->AddActor(sphere);
+					sphere->SetKinematic(true);
+					count++;
+				}
+			}
+		}
+	}
+
+	// Borders
+	Box* leftSide = new Box(glm::vec2(-65, 0), glm::vec2(0), 0.0f, 2.0f, 1.0f, 50.0f, glm::vec4(0, 1, 1, 1));
+	m_physicsScene->AddActor(leftSide);
+	leftSide->SetKinematic(true);
+
+	Box* rightSide = new Box(glm::vec2(62, 0), glm::vec2(0), 0.0f, 2.0f, 1.0f, 50.0f, glm::vec4(0, 1, 1, 1));
+	m_physicsScene->AddActor(rightSide);
+	rightSide->SetKinematic(true);
+
 }
 
+void PhysicsProjectApp::Spawner(float a_deltaTime)
+{
+	// Spawner Movement
+	glm::vec2 spawnerPos = spawner->GetPosition();
+
+	if (spawnerPos.x >= 60)
+	{
+		leftDir = true;
+	}
+	else if (spawnerPos.x <= -60)
+	{
+		leftDir = false;
+	}
+
+	spawner->SetPosition(glm::vec2(spawnerPos.x + (leftDir ? -m_spawnerSpeed: m_spawnerSpeed) * a_deltaTime, spawnerPos.y));
+
+	// Spawner creating new pachinko balls
+	aie::Input* input = aie::Input::getInstance();
+
+	if (input->wasKeyPressed((aie::EInputCodes::INPUT_KEY_SPACE)))
+	{
+		Sphere* ball = new Sphere(spawnerPos, glm::vec2(0), 2.0f, 1.5f, glm::vec4(0, 0.5, 0, 1));
+		m_physicsScene->AddActor(ball);
+	}
+}
+
+// ---- Test Scenes ----
 void PhysicsProjectApp::DrawRect()
 {
 	m_physicsScene->AddActor(new Sphere(glm::vec2(20, 10), glm::vec2(-10, -17), 1, 3, glm::vec4(1, 0, 0, 1)));
@@ -201,4 +337,19 @@ void PhysicsProjectApp::TriggerTest()
 
 	ball2->triggerEnter = [=](PhysicsObject* other) { std::cout << "Entered: " << other << std::endl; };
 	ball2->triggerExit = [=](PhysicsObject* other) { std::cout << "Exited: " << other << std::endl; };
+}
+
+glm::vec2 PhysicsProjectApp::ScreenToWorld(glm::vec2 a_screenPos)
+{
+	glm::vec2 worldPos = a_screenPos;
+
+	// We will move the center of the screen to (0, 0)
+	worldPos.x -= getWindowWidth() / 2;
+	worldPos.y -= getWindowHeight() / 2;
+
+	// Scale this according to the extents
+	worldPos.x *= 2.0f * m_extents / getWindowWidth();
+	worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
+
+	return worldPos;
 }
