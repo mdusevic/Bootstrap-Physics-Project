@@ -129,18 +129,20 @@ void PhysicsProjectApp::DrawBackground()
 			{
 				if (count < 9)
 				{
-					Sphere* sphere = new Sphere(glm::vec2((x * spacing + 6) + 4, (y * spacing) + 35), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+					Sphere* sphere = new Sphere(glm::vec2((x * spacing + 6) + 5, (y * spacing) + 35), glm::vec2(0), 5.0f, 1.5f, glm::vec4(1, 1, 1, 1));
 					m_physicsScene->AddActor(sphere);
 					sphere->SetKinematic(true);
+					sphere->SetElasticity(2.0f);
 					count++;
 				}
 			}
 
 			else
 			{
-				Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 4, (y * spacing) + 35), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 5, (y * spacing) + 35), glm::vec2(0), 5.0f, 1.5f, glm::vec4(1, 1, 1, 1));
 				m_physicsScene->AddActor(sphere);
 				sphere->SetKinematic(true);
+				sphere->SetElasticity(2.0f);
 			}
 		}
 	}
@@ -152,16 +154,18 @@ void PhysicsProjectApp::DrawBackground()
 		{
 			if (y % 2 == 0)
 			{
-				Sphere* sphere = new Sphere(glm::vec2((x * spacing + 6) - 44, (y * spacing) + 10), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing + 6) - 43, (y * spacing) + 10), glm::vec2(0), 5.0f, 1.5f, glm::vec4(1, 1, 1, 1));
 				m_physicsScene->AddActor(sphere);
 				sphere->SetKinematic(true);
+				sphere->SetElasticity(2.0f);
 			}
 
 			else
 			{
-				Sphere* sphere = new Sphere(glm::vec2((x * spacing) - 44, (y * spacing) + 10), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing) - 43, (y * spacing) + 10), glm::vec2(0), 5.0f, 1.5f, glm::vec4(1, 1, 1, 1));
 				m_physicsScene->AddActor(sphere);
 				sphere->SetKinematic(true);
+				sphere->SetElasticity(2.0f);
 			}
 		}
 	}
@@ -173,16 +177,18 @@ void PhysicsProjectApp::DrawBackground()
 		{
 			if (y % 2 == 0)
 			{
-				Sphere* sphere = new Sphere(glm::vec2((x * spacing - 6) + 52, (y * spacing) + 10), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing - 6) + 53, (y * spacing) + 10), glm::vec2(0), 5.0f, 1.5f, glm::vec4(1, 1, 1, 1));
 				m_physicsScene->AddActor(sphere);
 				sphere->SetKinematic(true);
+				sphere->SetElasticity(2.0f);
 			}
 
 			else
 			{
-				Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 52, (y * spacing) + 10), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 53, (y * spacing) + 10), glm::vec2(0), 5.0f, 1.5f, glm::vec4(1, 1, 1, 1));
 				m_physicsScene->AddActor(sphere);
 				sphere->SetKinematic(true);
+				sphere->SetElasticity(2.0f);
 			}
 		}
 	}
@@ -196,33 +202,47 @@ void PhysicsProjectApp::DrawBackground()
 		{
 			if (y % 2 == 0)
 			{
-				Sphere* sphere = new Sphere(glm::vec2((x * spacing - 6) + 10, (y * spacing) - 2), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+				Sphere* sphere = new Sphere(glm::vec2((x * spacing - 6) + 11, (y * spacing) - 2), glm::vec2(0), 5.0f, 1.5f, glm::vec4(1, 1, 1, 1));
 				m_physicsScene->AddActor(sphere);
 				sphere->SetKinematic(true);
+				sphere->SetElasticity(2.0f);
 			}
 
 			else
 			{
 				if (count < 5)
 				{
-					Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 10, (y * spacing) - 2), glm::vec2(0), 2.0f, 1.5f, glm::vec4(1, 1, 1, 1));
+					Sphere* sphere = new Sphere(glm::vec2((x * spacing) + 11, (y * spacing) - 2), glm::vec2(0), 5.0f, 1.5f, glm::vec4(1, 1, 1, 1));
 					m_physicsScene->AddActor(sphere);
 					sphere->SetKinematic(true);
+					sphere->SetElasticity(2.0f);
 					count++;
 				}
 			}
 		}
 	}
 
+	// Bouncy springs
+	Box* bouncyLeft = new Box(glm::vec2(-20, 10), glm::vec2(0), 1.0f, 8.0f, 0.5f, 5.0f, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(bouncyLeft);
+	bouncyLeft->SetKinematic(true);
+	bouncyLeft->SetElasticity(10.0f);
+
+	Box* bouncyRight = new Box(glm::vec2(20, 10), glm::vec2(0), -1.0f, 8.0f, 0.5f, 5.0f, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(bouncyRight);
+	bouncyRight->SetKinematic(true);
+	bouncyRight->SetElasticity(10.0f);
+
 	// Borders
-	Box* leftSide = new Box(glm::vec2(-65, 0), glm::vec2(0), 0.0f, 2.0f, 1.0f, 50.0f, glm::vec4(0, 1, 1, 1));
+	Box* leftSide = new Box(glm::vec2(-65, 0), glm::vec2(0), 0.0f, 4.0f, 1.0f, 50.0f, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(leftSide);
 	leftSide->SetKinematic(true);
+	bouncyRight->SetElasticity(5.0f);
 
-	Box* rightSide = new Box(glm::vec2(62, 0), glm::vec2(0), 0.0f, 2.0f, 1.0f, 50.0f, glm::vec4(0, 1, 1, 1));
+	Box* rightSide = new Box(glm::vec2(65, 0), glm::vec2(0), 0.0f, 4.0f, 1.0f, 50.0f, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(rightSide);
 	rightSide->SetKinematic(true);
-
+	bouncyRight->SetElasticity(5.0f);
 }
 
 void PhysicsProjectApp::Spawner(float a_deltaTime)
@@ -246,8 +266,9 @@ void PhysicsProjectApp::Spawner(float a_deltaTime)
 
 	if (input->wasKeyPressed((aie::EInputCodes::INPUT_KEY_SPACE)))
 	{
-		Sphere* ball = new Sphere(spawnerPos, glm::vec2(0), 2.0f, 1.5f, glm::vec4(0, 0.5, 0, 1));
+		Sphere* ball = new Sphere(spawnerPos, glm::vec2(0), 8.0f, 1.5f, glm::vec4(0, 0.5, 0, 1));
 		m_physicsScene->AddActor(ball);
+		ball->SetElasticity(1.0f);
 	}
 }
 
