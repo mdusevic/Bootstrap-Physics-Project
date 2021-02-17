@@ -117,7 +117,7 @@ void PhysicsProjectApp::draw()
 void PhysicsProjectApp::DrawBackground()
 {
 	// Creates spawner 
-	spawner = new Box(glm::vec2(0, 45), glm::vec2(0), 0.0f, 1.0f, 5.0f, 1.2f, glm::vec4(1, 1, 1, 1));
+	spawner = new Box(glm::vec2(0, 44), glm::vec2(0), 0.0f, 1.0f, 5.0f, 1.2f, glm::vec4(1, 1, 1, 1));
 	m_physicsScene->AddActor(spawner);
 	spawner->SetKinematic(true);
 
@@ -282,10 +282,35 @@ void PhysicsProjectApp::DrawBackground()
 	bottomSide->SetElasticity(5.0f);
 
 	// Score Bins
-	Box* divider1 = new Box(glm::vec2(0, -42), glm::vec2(0), 0.0f, 4.0f, 1.0f, 5.0f, glm::vec4(0.2, 0.2, 0.2, 1));
-	m_physicsScene->AddActor(divider1);
-	divider1->SetKinematic(true);
-	divider1->SetElasticity(5.0f);
+	Box* dividerMidLeft = new Box(glm::vec2(-7, -42), glm::vec2(0), 0.0f, 4.0f, 0.8f, 5.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(dividerMidLeft);
+	dividerMidLeft->SetKinematic(true);
+	dividerMidLeft->SetElasticity(5.0f);
+
+	Box* dividerMidRight = new Box(glm::vec2(7, -42), glm::vec2(0), 0.0f, 4.0f, 0.8f, 5.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(dividerMidRight);
+	dividerMidRight->SetKinematic(true);
+	dividerMidRight->SetElasticity(5.0f);
+
+	Box* dividerLeft = new Box(glm::vec2(-24, -42), glm::vec2(0), 0.0f, 4.0f, 0.8f, 5.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(dividerLeft);
+	dividerLeft->SetKinematic(true);
+	dividerLeft->SetElasticity(5.0f);
+
+	Box* dividerRight = new Box(glm::vec2(24, -42), glm::vec2(0), 0.0f, 4.0f, 0.8f, 5.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(dividerRight);
+	dividerRight->SetKinematic(true);
+	dividerRight->SetElasticity(5.0f);
+
+	Box* dividerFarLeft = new Box(glm::vec2(-44, -42), glm::vec2(0), 0.0f, 4.0f, 0.8f, 5.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(dividerFarLeft);
+	dividerFarLeft->SetKinematic(true);
+	dividerFarLeft->SetElasticity(5.0f);
+
+	Box* dividerFarRight = new Box(glm::vec2(44, -42), glm::vec2(0), 0.0f, 4.0f, 0.8f, 5.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(dividerFarRight);
+	dividerFarRight->SetKinematic(true);
+	dividerFarRight->SetElasticity(5.0f);
 }
 
 void PhysicsProjectApp::SpawnerMovement(float a_deltaTime)
