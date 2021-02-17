@@ -19,7 +19,8 @@ public:
 
 	// Main Game
 	void DrawBackground();
-	void Spawner(float a_deltaTime);
+	void SpawnerMovement(float a_deltaTime);
+	void SpinningWheelMovement(float a_deltaTime);
 
 	// Test Scenes
 	void DrawRect();
@@ -28,6 +29,8 @@ public:
 	void TriggerTest();
 
 	glm::vec2 ScreenToWorld(glm::vec2 a_screenPos);
+
+	int GetCurrentBallAmount() { return m_currentBallAmount; }
 
 protected:
 	aie::Renderer2D*	m_2dRenderer;
@@ -39,6 +42,11 @@ protected:
 	const float m_extents = 100.0f;
 
 	Box* spawner;
+	Box* wheel1;
+	Box* wheel2;
 	bool leftDir = false;
 	float m_spawnerSpeed = 15.0f;
+	float m_spinningSpeed = 1.5f;
+	int m_currentBallAmount = 0;
+	int m_maxBallAmount = 15;
 };
