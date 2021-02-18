@@ -40,7 +40,7 @@ bool PhysicsProjectApp::startup()
 	// If it is too high it causes the sim to stutter and reduce stability.
 	m_physicsScene->SetTimeStep(0.01f);
 
-	DrawBackground();
+	DrawPachinkoGame();
 
 	return true;
 }
@@ -62,15 +62,7 @@ void PhysicsProjectApp::update(float deltaTime)
 	m_physicsScene->Update(deltaTime);
 	m_physicsScene->Draw();
 
-	// Circle on click
-	//if (input->isMouseButtonDown(0))
-	//{
-	//	int xScreen, yScreen;
-	//	input->getMouseXY(&xScreen, &yScreen);
-	//	glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
-	//	aie::Gizmos::add2DCircle(worldPos, 5, 32, glm::vec4(0.7f));
-	//}
-
+	// Movement Functions
 	SpawnerMovement(deltaTime);
 	SpinningWheelMovement(deltaTime);
 
@@ -94,17 +86,28 @@ void PhysicsProjectApp::draw()
 	aie::Gizmos::draw2D(glm::ortho<float>(-m_extents, m_extents, -m_extents / m_aspectRatio, m_extents / m_aspectRatio, -1.0f, 1.0f));
 
 	// Outputs high score
-	m_2dRenderer->drawText(m_font, "Score: ", 450, 720 - 32);
+	char score[32];
+	sprintf_s(score, 32, "Score: %i", GetScore());
+	m_2dRenderer->drawText(m_font, score, 450, 720 - 32);
 
 	// Outputs number of balls left
 	char ballCount[32];
-	sprintf_s(ballCount, 32, "Balls Left : %i", (m_maxBallAmount - GetCurrentBallAmount()));
+	sprintf_s(ballCount, 32, "Balls Left: %i", (m_maxBallAmount - GetCurrentBallAmount()));
 	m_2dRenderer->drawText(m_font, ballCount, 5, 720 - 32);
 	
 	// Draws FPS counter
 	char fps[32];
 	sprintf_s(fps, 32, "FPS: %i", getFPS());
 	m_2dRenderer->drawText(m_font, fps, 5, 720 - 96);
+
+	// Draws text in point bin to indicate point amount
+	m_2dRenderer->drawText(m_font, "1000", 605, 80);
+	m_2dRenderer->drawText(m_font, "500", 515, 80);
+	m_2dRenderer->drawText(m_font, "500", 710, 80);
+	m_2dRenderer->drawText(m_font, "250", 398, 80);
+	m_2dRenderer->drawText(m_font, "250", 830, 80);
+	m_2dRenderer->drawText(m_font, "100", 965, 80);
+	m_2dRenderer->drawText(m_font, "100", 260, 80);
 
 	// Output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit", 5, 15);
@@ -114,7 +117,7 @@ void PhysicsProjectApp::draw()
 }
 
 // ---- Main Game Scenes ----
-void PhysicsProjectApp::DrawBackground()
+void PhysicsProjectApp::DrawPachinkoGame()
 {
 	// Creates spawner 
 	spawner = new Box(glm::vec2(0, 44), glm::vec2(0), 0.0f, 1.0f, 5.0f, 1.2f, glm::vec4(1, 1, 1, 1));
@@ -122,17 +125,29 @@ void PhysicsProjectApp::DrawBackground()
 	spawner->SetKinematic(true);
 
 	// Creates spinning wheel
-	wheel1 = new Box(glm::vec2(0, 0), glm::vec2(0), 0.0f, 8.0f, 0.6f, 9.0f, glm::vec4(1, 0.5, 0, 1));
+	wheel1 = new Box(glm::vec2(0, 0), glm::vec2(0), 0.0f, 8.0f, 1.0f, 9.0f, glm::vec4(1, 0.5, 0, 1));
 	m_physicsScene->AddActor(wheel1);
 	wheel1->SetKinematic(true);
 	wheel1->SetElasticity(2.0f);
 
-	wheel2 = new Box(glm::vec2(0, 0), glm::vec2(0), 0.0f, 8.0f, 9.0f, 0.6f, glm::vec4(1, 0.5, 0, 1));
+	wheel2 = new Box(glm::vec2(0, 0), glm::vec2(0), 0.0f, 8.0f, 9.0f, 1.0f, glm::vec4(1, 0.8, 0, 1));
 	m_physicsScene->AddActor(wheel2);
 	wheel2->SetKinematic(true);
 	wheel2->SetElasticity(2.0f);
 
-	Sphere* wheelCentre = new Sphere(glm::vec2(0, 0), glm::vec2(0), 8.0f, 2.4f, glm::vec4(0.3, 0.3, 0.3, 1));
+	wheel1->m_collisionCallback = [=](PhysicsObject* other)
+	{
+		Rigidbody* rb = dynamic_cast<Rigidbody*>(other);
+		rb->ApplyForce(rb->GetVelocity() * 5.0f, glm::vec2(0, 0));
+	};
+
+	wheel2->m_collisionCallback = [=](PhysicsObject* other)
+	{
+		Rigidbody* rb = dynamic_cast<Rigidbody*>(other);
+		rb->ApplyForce(rb->GetVelocity() * 5.0f, glm::vec2(0, 0));
+	};
+
+	Sphere* wheelCentre = new Sphere(glm::vec2(0, 0), glm::vec2(0), 8.0f, 3.4f, glm::vec4(0.3, 0.3, 0.3, 1));
 	m_physicsScene->AddActor(wheelCentre);
 	wheelCentre->SetKinematic(true);
 	wheelCentre->SetElasticity(3.0f);
@@ -311,6 +326,77 @@ void PhysicsProjectApp::DrawBackground()
 	m_physicsScene->AddActor(dividerFarRight);
 	dividerFarRight->SetKinematic(true);
 	dividerFarRight->SetElasticity(5.0f);
+
+	// Point bin triggers
+	Box* pointBinMid = new Box(glm::vec2(0, -42), glm::vec2(0), 0.0f, 4.0f, 6.2f, 4.0f, glm::vec4(0, 0.8, 0, 0.5));
+	m_physicsScene->AddActor(pointBinMid);
+	pointBinMid->SetKinematic(true);
+	pointBinMid->SetTrigger(true);
+
+	pointBinMid->triggerEnter = [=](PhysicsObject* other)
+	{ 
+		SetScore(GetScore() + 1000);
+	};
+
+	Box* pointBinMidLeft = new Box(glm::vec2(-15.5, -42), glm::vec2(0), 0.0f, 4.0f, 7.7f, 4.0f, glm::vec4(0, 0.8, 0, 0.4));
+	m_physicsScene->AddActor(pointBinMidLeft);
+	pointBinMidLeft->SetKinematic(true);
+	pointBinMidLeft->SetTrigger(true);
+
+	pointBinMidLeft->triggerEnter = [=](PhysicsObject* other)
+	{
+		SetScore(GetScore() + 500);
+	};
+
+	Box* pointBinMidRight = new Box(glm::vec2(15.5, -42), glm::vec2(0), 0.0f, 4.0f, 7.7f, 4.0f, glm::vec4(0, 0.8, 0, 0.4));
+	m_physicsScene->AddActor(pointBinMidRight);
+	pointBinMidRight->SetKinematic(true);
+	pointBinMidRight->SetTrigger(true);
+
+	pointBinMidRight->triggerEnter = [=](PhysicsObject* other)
+	{
+		SetScore(GetScore() + 500);
+	};
+
+	Box* pointBinLeft = new Box(glm::vec2(-34, -42), glm::vec2(0), 0.0f, 4.0f, 9.2f, 4.0f, glm::vec4(0, 0.8, 0, 0.3));
+	m_physicsScene->AddActor(pointBinLeft);
+	pointBinLeft->SetKinematic(true);
+	pointBinLeft->SetTrigger(true);
+
+	pointBinLeft->triggerEnter = [=](PhysicsObject* other)
+	{
+		SetScore(GetScore() + 250);
+	};
+
+	Box* pointBinRight = new Box(glm::vec2(34, -42), glm::vec2(0), 0.0f, 4.0f, 9.2f, 4.0f, glm::vec4(0, 0.8, 0, 0.3));
+	m_physicsScene->AddActor(pointBinRight);
+	pointBinRight->SetKinematic(true);
+	pointBinRight->SetTrigger(true);
+
+	pointBinRight->triggerEnter = [=](PhysicsObject* other)
+	{
+		SetScore(GetScore() + 250);
+	};
+
+	Box* pointBinFarLeft = new Box(glm::vec2(-54.95, -42), glm::vec2(0), 0.0f, 4.0f, 10.1f, 4.0f, glm::vec4(0, 0.8, 0, 0.2));
+	m_physicsScene->AddActor(pointBinFarLeft);
+	pointBinFarLeft->SetKinematic(true);
+	pointBinFarLeft->SetTrigger(true);
+
+	pointBinFarLeft->triggerEnter = [=](PhysicsObject* other)
+	{
+		SetScore(GetScore() + 100);
+	};
+
+	Box* pointBinFarRight = new Box(glm::vec2(54.95, -42), glm::vec2(0), 0.0f, 4.0f, 10.1f, 4.0f, glm::vec4(0, 0.8, 0, 0.2));
+	m_physicsScene->AddActor(pointBinFarRight);
+	pointBinFarRight->SetKinematic(true);
+	pointBinFarRight->SetTrigger(true);
+
+	pointBinFarRight->triggerEnter = [=](PhysicsObject* other)
+	{
+		SetScore(GetScore() + 100);
+	};
 }
 
 void PhysicsProjectApp::SpawnerMovement(float a_deltaTime)
@@ -346,9 +432,11 @@ void PhysicsProjectApp::SpinningWheelMovement(float a_deltaTime)
 	// Spinning Wheel Movement
 	float wheel1Rot = wheel1->GetRotation();
 	wheel1->SetRotation(wheel1Rot + m_spinningSpeed * a_deltaTime);
+	wheel1->SetAngularVelocity(wheel1Rot);
 
 	float wheel2Rot = wheel2->GetRotation();
 	wheel2->SetRotation(wheel2Rot + m_spinningSpeed * a_deltaTime);
+	wheel2->SetAngularVelocity(wheel2Rot);
 }
 
 // ---- Test Scenes ----
