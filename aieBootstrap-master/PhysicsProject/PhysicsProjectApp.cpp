@@ -92,7 +92,7 @@ void PhysicsProjectApp::draw()
 
 	// Outputs number of balls left
 	char ballCount[32];
-	sprintf_s(ballCount, 32, "Balls Left: %i", (m_maxBallAmount - GetCurrentBallAmount()));
+	sprintf_s(ballCount, 32, "Balls Left: %i", (GetMaxBallAmount() - GetCurrentBallAmount()));
 	m_2dRenderer->drawText(m_font, ballCount, 5, 720 - 32);
 	
 	// Draws FPS counter
@@ -116,51 +116,54 @@ void PhysicsProjectApp::draw()
 	m_2dRenderer->end();
 }
 
-// ---- Main Game Scenes ----
+// ---- Main Game Functions ----
+
+// Calls all functions to draw pachinko game
 void PhysicsProjectApp::DrawPachinkoGame()
 {
+	// Borders
+	Box* leftSide = new Box(glm::vec2(-66, 0), glm::vec2(0), 0.0f, 4.0f, 1.0f, 46.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(leftSide);
+	leftSide->SetKinematic(true);
+	leftSide->SetElasticity(5.0f);
+
+	Box* rightSide = new Box(glm::vec2(66, 0), glm::vec2(0), 0.0f, 4.0f, 1.0f, 46.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(rightSide);
+	rightSide->SetKinematic(true);
+	rightSide->SetElasticity(5.0f);
+
+	Box* bottomSide = new Box(glm::vec2(0, -47), glm::vec2(0), 0.0f, 4.0f, 67.0f, 1.0f, glm::vec4(0.2, 0.2, 0.2, 1));
+	m_physicsScene->AddActor(bottomSide);
+	bottomSide->SetKinematic(true);
+	bottomSide->SetElasticity(0.0f);
+
+	// Calls draw function for grid
+	DrawGrid();
+
 	// Creates spawner 
 	spawner = new Box(glm::vec2(0, 44), glm::vec2(0), 0.0f, 1.0f, 5.0f, 1.2f, glm::vec4(1, 1, 1, 1));
 	m_physicsScene->AddActor(spawner);
 	spawner->SetKinematic(true);
 
-	// Creates spinning wheel
-	wheel1 = new Box(glm::vec2(0, 0), glm::vec2(0), 0.0f, 8.0f, 1.0f, 9.0f, glm::vec4(1, 0.5, 0, 1));
-	m_physicsScene->AddActor(wheel1);
-	wheel1->SetKinematic(true);
-	wheel1->SetElasticity(2.0f);
+	// Calls the function to draw obstacles in game
+	DrawObstacles();
 
-	wheel2 = new Box(glm::vec2(0, 0), glm::vec2(0), 0.0f, 8.0f, 9.0f, 1.0f, glm::vec4(1, 0.8, 0, 1));
-	m_physicsScene->AddActor(wheel2);
-	wheel2->SetKinematic(true);
-	wheel2->SetElasticity(2.0f);
+	// Calls the function to draw score bins
+	DrawScoreBins();
+}
 
-	wheel1->m_collisionCallback = [=](PhysicsObject* other)
-	{
-		Rigidbody* rb = dynamic_cast<Rigidbody*>(other);
-		rb->ApplyForce(rb->GetVelocity() * 5.0f, glm::vec2(0, 0));
-	};
-
-	wheel2->m_collisionCallback = [=](PhysicsObject* other)
-	{
-		Rigidbody* rb = dynamic_cast<Rigidbody*>(other);
-		rb->ApplyForce(rb->GetVelocity() * 5.0f, glm::vec2(0, 0));
-	};
-
-	Sphere* wheelCentre = new Sphere(glm::vec2(0, 0), glm::vec2(0), 8.0f, 3.4f, glm::vec4(0.3, 0.3, 0.3, 1));
-	m_physicsScene->AddActor(wheelCentre);
-	wheelCentre->SetKinematic(true);
-	wheelCentre->SetElasticity(3.0f);
-
+// Draw circle grid for game
+void PhysicsProjectApp::DrawGrid()
+{
 	// Creates grid of spheres for ball to collide with
 	int spacing = 10;
 	int count = 0;
 
 	// Draws grid of balls
-	// First two rows
+	// First rows
 	for (int y = -1; y < 2; y++)
 	{
-		for (int x = -6; x < 7; x++) 
+		for (int x = -6; x < 7; x++)
 		{
 			if (y % 2 == 0)
 			{
@@ -232,7 +235,7 @@ void PhysicsProjectApp::DrawPachinkoGame()
 
 	count = 0;
 
-	// Middle two rows
+	// Bottom rows
 	for (int y = -1; y < 1; y++)
 	{
 		for (int x = -3; x < 4; x++)
@@ -258,45 +261,12 @@ void PhysicsProjectApp::DrawPachinkoGame()
 			}
 		}
 	}
+}
 
-	// Bouncy springs
-	Box* bouncyMidLeft = new Box(glm::vec2(-22, -2), glm::vec2(0), 0.9f, 8.0f, 0.5f, 5.5f, glm::vec4(1, 0, 0, 1));
-	m_physicsScene->AddActor(bouncyMidLeft);
-	bouncyMidLeft->SetKinematic(true);
-	bouncyMidLeft->SetElasticity(8.0f);
-
-	Box* bouncyMidRight = new Box(glm::vec2(22, -2), glm::vec2(0), -0.9f, 8.0f, 0.5f, 5.5f, glm::vec4(1, 0, 0, 1));
-	m_physicsScene->AddActor(bouncyMidRight);
-	bouncyMidRight->SetKinematic(true);
-	bouncyMidRight->SetElasticity(8.0f);
-
-	Box* bouncyBotLeft = new Box(glm::vec2(-48, -28), glm::vec2(0), 1.0f, 8.0f, 0.5f, 5.5f, glm::vec4(1, 0, 0, 1));
-	m_physicsScene->AddActor(bouncyBotLeft);
-	bouncyBotLeft->SetKinematic(true);
-	bouncyBotLeft->SetElasticity(8.0f);
-
-	Box* bouncyBotRight = new Box(glm::vec2(48, -28), glm::vec2(0), -1.0f, 8.0f, 0.5f, 5.5f, glm::vec4(1, 0, 0, 1));
-	m_physicsScene->AddActor(bouncyBotRight);
-	bouncyBotRight->SetKinematic(true);
-	bouncyBotRight->SetElasticity(8.0f);
-
-	// Borders
-	Box* leftSide = new Box(glm::vec2(-66, 0), glm::vec2(0), 0.0f, 4.0f, 1.0f, 46.0f, glm::vec4(0.2, 0.2, 0.2, 1));
-	m_physicsScene->AddActor(leftSide);
-	leftSide->SetKinematic(true);
-	leftSide->SetElasticity(5.0f);
-
-	Box* rightSide = new Box(glm::vec2(66, 0), glm::vec2(0), 0.0f, 4.0f, 1.0f, 46.0f, glm::vec4(0.2, 0.2, 0.2 , 1));
-	m_physicsScene->AddActor(rightSide);
-	rightSide->SetKinematic(true);
-	rightSide->SetElasticity(5.0f);
-
-	Box* bottomSide = new Box(glm::vec2(0, -47), glm::vec2(0), 0.0f, 4.0f, 67.0f, 1.0f, glm::vec4(0.2, 0.2, 0.2, 1));
-	m_physicsScene->AddActor(bottomSide);
-	bottomSide->SetKinematic(true);
-	bottomSide->SetElasticity(5.0f);
-
-	// Score Bins
+// Draw the score bins for game
+void PhysicsProjectApp::DrawScoreBins()
+{
+	// Score Bins Dividers
 	Box* dividerMidLeft = new Box(glm::vec2(-7, -42), glm::vec2(0), 0.0f, 4.0f, 0.8f, 5.0f, glm::vec4(0.2, 0.2, 0.2, 1));
 	m_physicsScene->AddActor(dividerMidLeft);
 	dividerMidLeft->SetKinematic(true);
@@ -327,14 +297,15 @@ void PhysicsProjectApp::DrawPachinkoGame()
 	dividerFarRight->SetKinematic(true);
 	dividerFarRight->SetElasticity(5.0f);
 
-	// Point bin triggers
+	// Point Bin Triggers
 	Box* pointBinMid = new Box(glm::vec2(0, -42), glm::vec2(0), 0.0f, 4.0f, 6.2f, 4.0f, glm::vec4(0, 0.8, 0, 0.5));
 	m_physicsScene->AddActor(pointBinMid);
 	pointBinMid->SetKinematic(true);
 	pointBinMid->SetTrigger(true);
 
+	// Adds 1000 points to score when collision is detected
 	pointBinMid->triggerEnter = [=](PhysicsObject* other)
-	{ 
+	{
 		SetScore(GetScore() + 1000);
 	};
 
@@ -343,6 +314,7 @@ void PhysicsProjectApp::DrawPachinkoGame()
 	pointBinMidLeft->SetKinematic(true);
 	pointBinMidLeft->SetTrigger(true);
 
+	// Adds 500 points to score when collision is detected
 	pointBinMidLeft->triggerEnter = [=](PhysicsObject* other)
 	{
 		SetScore(GetScore() + 500);
@@ -353,6 +325,7 @@ void PhysicsProjectApp::DrawPachinkoGame()
 	pointBinMidRight->SetKinematic(true);
 	pointBinMidRight->SetTrigger(true);
 
+	// Adds 500 points to score when collision is detected
 	pointBinMidRight->triggerEnter = [=](PhysicsObject* other)
 	{
 		SetScore(GetScore() + 500);
@@ -363,6 +336,7 @@ void PhysicsProjectApp::DrawPachinkoGame()
 	pointBinLeft->SetKinematic(true);
 	pointBinLeft->SetTrigger(true);
 
+	// Adds 250 points to score when collision is detected
 	pointBinLeft->triggerEnter = [=](PhysicsObject* other)
 	{
 		SetScore(GetScore() + 250);
@@ -373,6 +347,7 @@ void PhysicsProjectApp::DrawPachinkoGame()
 	pointBinRight->SetKinematic(true);
 	pointBinRight->SetTrigger(true);
 
+	// Adds 250 points to score when collision is detected
 	pointBinRight->triggerEnter = [=](PhysicsObject* other)
 	{
 		SetScore(GetScore() + 250);
@@ -383,6 +358,7 @@ void PhysicsProjectApp::DrawPachinkoGame()
 	pointBinFarLeft->SetKinematic(true);
 	pointBinFarLeft->SetTrigger(true);
 
+	// Adds 100 points to score when collision is detected
 	pointBinFarLeft->triggerEnter = [=](PhysicsObject* other)
 	{
 		SetScore(GetScore() + 100);
@@ -393,12 +369,67 @@ void PhysicsProjectApp::DrawPachinkoGame()
 	pointBinFarRight->SetKinematic(true);
 	pointBinFarRight->SetTrigger(true);
 
+	// Adds 100 points to score when collision is detected
 	pointBinFarRight->triggerEnter = [=](PhysicsObject* other)
 	{
 		SetScore(GetScore() + 100);
 	};
 }
 
+// Draw the obstacles in game (Bouncy Pad / Spinning Wheel)
+void PhysicsProjectApp::DrawObstacles()
+{
+	// Creates spinning wheel
+	wheel1 = new Box(glm::vec2(0, 0), glm::vec2(0), 0.0f, 8.0f, 1.0f, 9.0f, glm::vec4(1, 0.5, 0, 1));
+	m_physicsScene->AddActor(wheel1);
+	wheel1->SetKinematic(true);
+	wheel1->SetElasticity(2.0f);
+
+	wheel2 = new Box(glm::vec2(0, 0), glm::vec2(0), 0.0f, 8.0f, 9.0f, 1.0f, glm::vec4(1, 0.8, 0, 1));
+	m_physicsScene->AddActor(wheel2);
+	wheel2->SetKinematic(true);
+	wheel2->SetElasticity(2.0f);
+
+	wheel1->m_collisionCallback = [=](PhysicsObject* other)
+	{
+		Rigidbody* rb = dynamic_cast<Rigidbody*>(other);
+		rb->ApplyForce(rb->GetVelocity() * 5.0f, glm::vec2(0, 0));
+	};
+
+	wheel2->m_collisionCallback = [=](PhysicsObject* other)
+	{
+		Rigidbody* rb = dynamic_cast<Rigidbody*>(other);
+		rb->ApplyForce(rb->GetVelocity() * 5.0f, glm::vec2(0, 0));
+	};
+
+	Sphere* wheelCentre = new Sphere(glm::vec2(0, 0), glm::vec2(0), 8.0f, 3.4f, glm::vec4(0.3, 0.3, 0.3, 1));
+	m_physicsScene->AddActor(wheelCentre);
+	wheelCentre->SetKinematic(true);
+	wheelCentre->SetElasticity(3.0f);
+
+	// Bouncy springs
+	Box* bouncyMidLeft = new Box(glm::vec2(-22, -2), glm::vec2(0), -0.9f, 8.0f, 0.5f, 5.5f, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(bouncyMidLeft);
+	bouncyMidLeft->SetKinematic(true);
+	bouncyMidLeft->SetElasticity(8.0f);
+
+	Box* bouncyMidRight = new Box(glm::vec2(22, -2), glm::vec2(0), 0.9f, 8.0f, 0.5f, 5.5f, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(bouncyMidRight);
+	bouncyMidRight->SetKinematic(true);
+	bouncyMidRight->SetElasticity(8.0f);
+
+	Box* bouncyBotLeft = new Box(glm::vec2(-48, -28), glm::vec2(0), 1.0f, 8.0f, 0.5f, 5.5f, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(bouncyBotLeft);
+	bouncyBotLeft->SetKinematic(true);
+	bouncyBotLeft->SetElasticity(8.0f);
+
+	Box* bouncyBotRight = new Box(glm::vec2(48, -28), glm::vec2(0), -1.0f, 8.0f, 0.5f, 5.5f, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(bouncyBotRight);
+	bouncyBotRight->SetKinematic(true);
+	bouncyBotRight->SetElasticity(8.0f);
+}
+
+// Function that moves spawner and creates balls
 void PhysicsProjectApp::SpawnerMovement(float a_deltaTime)
 {
 	// Spawner Movement
@@ -427,6 +458,7 @@ void PhysicsProjectApp::SpawnerMovement(float a_deltaTime)
 	}
 }
 
+// Function that moves spinning wheel
 void PhysicsProjectApp::SpinningWheelMovement(float a_deltaTime)
 {
 	// Spinning Wheel Movement
@@ -440,6 +472,7 @@ void PhysicsProjectApp::SpinningWheelMovement(float a_deltaTime)
 }
 
 // ---- Test Scenes ----
+
 void PhysicsProjectApp::DrawRect()
 {
 	m_physicsScene->AddActor(new Sphere(glm::vec2(20, 10), glm::vec2(-10, -17), 1, 3, glm::vec4(1, 0, 0, 1)));

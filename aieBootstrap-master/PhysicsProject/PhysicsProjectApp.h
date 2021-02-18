@@ -17,8 +17,11 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
-	// Main Game
+	// Main Game Functions
 	void DrawPachinkoGame();
+	void DrawGrid();
+	void DrawScoreBins();
+	void DrawObstacles();
 	void SpawnerMovement(float a_deltaTime);
 	void SpinningWheelMovement(float a_deltaTime);
 
@@ -36,7 +39,7 @@ public:
 	int GetScore() { return m_score; }
 	
 	// Setters
-	void SetScore(int a_score) { m_score = a_score; }
+	int SetScore(int a_score) { return m_score = a_score; }
 
 protected:
 	aie::Renderer2D*	m_2dRenderer;
@@ -54,7 +57,7 @@ protected:
 	bool leftDir = false;
 	
 	float m_spawnerSpeed = 15.0f;
-	float m_spinningSpeed = 1.2f;
+	float m_spinningSpeed = 1.5f;
 
 	int m_currentBallAmount = 0;
 	int m_maxBallAmount = 15;
