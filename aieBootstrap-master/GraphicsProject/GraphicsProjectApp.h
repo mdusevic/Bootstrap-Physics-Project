@@ -15,9 +15,12 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
-protected:
+	void SolarSystem(float dt);
 
+protected:
 	// camera transforms
 	glm::mat4	m_viewMatrix;
 	glm::mat4	m_projectionMatrix;
+
+	float zRot = 0;
 };

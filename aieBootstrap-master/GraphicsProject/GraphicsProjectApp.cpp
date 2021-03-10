@@ -1,24 +1,32 @@
 #include "GraphicsProjectApp.h"
 #include "Gizmos.h"
 #include "Input.h"
+
+#define GLM_ENABLE_EXPERIMENTAL 1
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 using aie::Gizmos;
 
-GraphicsProjectApp::GraphicsProjectApp() {
+GraphicsProjectApp::GraphicsProjectApp()
+{
 
 }
 
-GraphicsProjectApp::~GraphicsProjectApp() {
+GraphicsProjectApp::~GraphicsProjectApp()
+{
 
 }
 
-bool GraphicsProjectApp::startup() {
-	
+bool GraphicsProjectApp::startup()
+{
 	setBackgroundColour(0.25f, 0.25f, 0.25f);
 
 	// initialise gizmo primitive counts
@@ -31,20 +39,21 @@ bool GraphicsProjectApp::startup() {
 	return true;
 }
 
-void GraphicsProjectApp::shutdown() {
-
+void GraphicsProjectApp::shutdown()
+{
 	Gizmos::destroy();
 }
 
-void GraphicsProjectApp::update(float deltaTime) {
-
+void GraphicsProjectApp::update(float deltaTime)
+{
 	// wipe the gizmos clean for this frame
 	Gizmos::clear();
 
 	// draw a simple grid with gizmos
 	vec4 white(1);
 	vec4 black(0, 0, 0, 1);
-	for (int i = 0; i < 21; ++i) {
+	for (int i = 0; i < 21; ++i)
+	{
 		Gizmos::addLine(vec3(-10 + i, 0, 10),
 						vec3(-10 + i, 0, -10),
 						i == 10 ? white : black);
@@ -56,6 +65,8 @@ void GraphicsProjectApp::update(float deltaTime) {
 	// add a transform so that we can see the axis
 	Gizmos::addTransform(mat4(1));
 
+	//SolarSystem(deltaTime);
+
 	// quit if we press escape
 	aie::Input* input = aie::Input::getInstance();
 
@@ -63,8 +74,8 @@ void GraphicsProjectApp::update(float deltaTime) {
 		quit();
 }
 
-void GraphicsProjectApp::draw() {
-
+void GraphicsProjectApp::draw()
+{
 	// wipe the screen to the background colour
 	clearScreen();
 
@@ -73,3 +84,14 @@ void GraphicsProjectApp::draw() {
 
 	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
 }
+
+void GraphicsProjectApp::SolarSystem(float dt)
+{
+	// Sun
+	Gizmos::addSphere(glm::vec3(0, 0, 0), 1.0f, 16, 16, glm::vec4(1, 0.8, 0, 1));
+
+	//Mercury
+	/*glm::vec3 mercuryPos = glm::rotate(10.0f, glm::vec3(2, 0, 0));*/
+	Gizmos::addSphere(glm::vec3(2, 0, 0), 0.15f, 16, 16, glm::vec4(1, 0.8, 0, 1));
+}
+ 
