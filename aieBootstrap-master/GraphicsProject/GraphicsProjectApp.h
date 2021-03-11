@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application.h"
+#include "Camera.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "OBJMesh.h"
@@ -21,6 +22,8 @@ public:
 	void SolarSystem(float dt);
 
 protected:
+	Camera m_camera;
+
 	// Camera transforms
 	glm::mat4	m_viewMatrix;
 	glm::mat4	m_projectionMatrix;
@@ -29,6 +32,9 @@ protected:
 	aie::ShaderProgram m_simpleShader;
 	aie::ShaderProgram m_bunnyShader;
 	aie::ShaderProgram m_dragonShader;
+	aie::ShaderProgram m_buddhaShader;
+	aie::ShaderProgram m_lucyShader;
+	aie::ShaderProgram m_phongShader;
 	// --------------
 	// Basic Plane
 	Mesh m_quadMesh;
@@ -36,11 +42,33 @@ protected:
 	// Create a Bunny with a flat color
 	aie::OBJMesh m_bunnyMesh;
 	glm::mat4 m_bunnyTransform;
+	glm::vec3 m_bunnyPos;
 	// Create a Dragon with a flat color
 	aie::OBJMesh m_dragonMesh;
 	glm::mat4 m_dragonTransform;
+	glm::vec3 m_dragonPos;
+	// Create a Buddha with a flat color
+	aie::OBJMesh m_buddhaMesh;
+	glm::mat4 m_buddhaTransform;
+	glm::vec3 m_buddhaPos;
+	// Create Lucy with a flat color
+	aie::OBJMesh m_lucyMesh;
+	glm::mat4 m_lucyTransform;
+	glm::vec3 m_lucyPos;
+
+
+	struct Light
+	{
+		glm::vec3 direction;
+		glm::vec3 color;
+	};
+
+	Light m_light;
+	glm::vec3 m_ambientLight;
 
 public:
 	bool LoadShaderAndMeshLogic();
 	void DrawShaderAndMeshes(glm::mat4, glm::mat4);
+	void UpdateObjectTransforms();
+	void IMGUI_Logic();
 };
