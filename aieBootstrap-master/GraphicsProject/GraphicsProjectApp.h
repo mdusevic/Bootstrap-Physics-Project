@@ -36,8 +36,10 @@ protected:
 	aie::ShaderProgram m_dragonShader;
 	aie::ShaderProgram m_buddhaShader;
 	aie::ShaderProgram m_lucyShader;
+	aie::ShaderProgram m_spearShader;
 	aie::ShaderProgram m_phongShader;
 	aie::ShaderProgram m_textureShader;
+	aie::ShaderProgram m_normalMapShader;
 	// --------------
 	// Basic Plane
 	Mesh m_quadMesh;
@@ -58,7 +60,10 @@ protected:
 	aie::OBJMesh m_lucyMesh;
 	glm::mat4 m_lucyTransform;
 	glm::vec3 m_lucyPos;
-
+	// Create a SoulSpear 
+	aie::OBJMesh m_spearMesh;
+	glm::mat4 m_spearTransform;
+	glm::vec3 m_spearPos;
 
 	struct Light
 	{

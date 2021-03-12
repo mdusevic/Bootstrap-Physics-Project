@@ -240,11 +240,33 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic()
 
 	if (m_lucyMesh.load("./stanford/lucy.obj") == false)
 	{
-		printf("Dragon Mesh Failed!\n");
+		printf("Lucy Mesh Failed!\n");
 		return false;
 	}
 
 	m_lucyPos = { 6, 0, 0 };
+
+#pragma endregion
+
+#pragma region SoulSpear
+	m_spearShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
+
+	// Load the fragment shader from a file
+	m_spearShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
+
+	if (!m_spearShader.link())
+	{
+		printf("Spear Shader had an error: %s\n", m_spearShader.getLastError());
+		return false;
+	}
+
+	if (m_spearMesh.load("./soulspear/soulspear.obj", true, true) == false)
+	{
+		printf("Soul spear Mesh Failed!\n");
+		return false;
+	}
+
+	m_spearPos = { -4, 0, 4 };
 
 #pragma endregion
 
@@ -272,6 +294,18 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic()
 
 #pragma endregion
 
+#pragma region NormalMapShader
+	m_normalMapShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
+	m_normalMapShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
+
+	if (m_normalMapShader.link() == false)
+	{
+		printf("Normal Map Shader has an error: %s\n", m_normalMapShader.getLastError());
+		return false;
+	}
+
+#pragma endregion
+
 #pragma region GridLogic
 	if (m_gridTexture.load("./textures/numbered_grid.tga") == false)
 	{
@@ -280,7 +314,7 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic()
 	}
 
 #pragma endregion
-	
+
 	return true;
 }
 
@@ -349,6 +383,27 @@ void GraphicsProjectApp::DrawShaderAndMeshes(glm::mat4 a_projectionMatrix, glm::
 
 	// Draw lucy mesh
 	// m_lucyMesh.draw();
+
+#pragma endregion
+
+#pragma region SoulSpear
+	m_normalMapShader.bind();
+
+	// Bind the camera position
+	m_normalMapShader.bindUniform("CameraPosition", m_camera.GetPosition());
+
+	// Bind the light
+	m_normalMapShader.bindUniform("AmbientColor", m_ambientLight);
+	m_normalMapShader.bindUniform("LightColor", m_light.color);
+	m_normalMapShader.bindUniform("LightDirection", m_light.direction);
+
+	m_normalMapShader.bindUniform("ModelMatrix", m_spearTransform);
+	
+	pvm = a_projectionMatrix * a_viewMatrix * m_spearTransform;
+	m_normalMapShader.bindUniform("ProjectionViewModel", pvm);
+
+	// Draw spear mesh
+	 m_spearMesh.draw();
 
 #pragma endregion
 
@@ -445,6 +500,14 @@ void GraphicsProjectApp::UpdateObjectTransforms()
 		   0,     0,  0.5f,  0,
 	    m_lucyPos.x, m_lucyPos.y, m_lucyPos.z, 1
 	};
+
+	// --- SOUL SPEAR ---
+	m_spearTransform = {
+		1.0f,     0,     0,  0,
+		   0,  1.0f,     0,  0,
+		   0,     0,  1.0f,  0,
+		m_spearPos.x, m_spearPos.y, m_spearPos.z, 1
+	};
 }
 
 void GraphicsProjectApp::IMGUI_Logic()
@@ -459,6 +522,7 @@ void GraphicsProjectApp::IMGUI_Logic()
 	ImGui::DragFloat3("Dragon Position", &m_dragonPos[0], 0.1f);
 	ImGui::DragFloat3("Buddha Position", &m_buddhaPos[0], 0.1f);
 	ImGui::DragFloat3("Lucy Position", &m_lucyPos[0], 0.1f);
+	ImGui::DragFloat3("Soul Spear Position", &m_spearPos[0], 0.1f);
 
 	UpdateObjectTransforms();
 
