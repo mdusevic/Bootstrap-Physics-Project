@@ -28,6 +28,8 @@ protected:
 	glm::mat4	m_viewMatrix;
 	glm::mat4	m_projectionMatrix;
 
+	aie::Texture m_gridTexture;
+
 	// --- SHADER ---
 	aie::ShaderProgram m_simpleShader;
 	aie::ShaderProgram m_bunnyShader;
@@ -35,6 +37,7 @@ protected:
 	aie::ShaderProgram m_buddhaShader;
 	aie::ShaderProgram m_lucyShader;
 	aie::ShaderProgram m_phongShader;
+	aie::ShaderProgram m_textureShader;
 	// --------------
 	// Basic Plane
 	Mesh m_quadMesh;

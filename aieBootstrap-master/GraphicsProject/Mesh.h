@@ -11,7 +11,7 @@ public:
 	{
 		glm::vec4 position;
 		glm::vec4 normal;
-		glm::vec4 texCoord;
+		glm::vec2 texCoord;
 	};
 
 	void InitialiseQuad();
