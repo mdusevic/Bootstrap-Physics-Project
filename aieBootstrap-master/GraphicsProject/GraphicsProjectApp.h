@@ -37,6 +37,7 @@ protected:
 	aie::ShaderProgram m_buddhaShader;
 	aie::ShaderProgram m_lucyShader;
 	aie::ShaderProgram m_spearShader;
+	aie::ShaderProgram m_yodaShader;
 	aie::ShaderProgram m_phongShader;
 	aie::ShaderProgram m_textureShader;
 	aie::ShaderProgram m_normalMapShader;
@@ -64,6 +65,10 @@ protected:
 	aie::OBJMesh m_spearMesh;
 	glm::mat4 m_spearTransform;
 	glm::vec3 m_spearPos;
+	// Create a Baby Yoda
+	aie::OBJMesh m_yodaMesh;
+	glm::mat4 m_yodaTransform;
+	glm::vec3 m_yodaPos;
 
 	struct Light
 	{

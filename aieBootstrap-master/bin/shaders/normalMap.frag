@@ -4,9 +4,12 @@
 in vec4 vPosition;
 in vec3 vNormal;
 in vec2 vTexCoord;
+in vec3 vTangent;
+in vec3 vBiTangent;
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
+uniform sampler2D normalTexture;
 
 uniform vec3 Ka; // The ambient color of the model's material
 uniform vec3 Kd; // The diffuse color of the model's material
@@ -26,9 +29,16 @@ void main()
     // Make sure the normal and the light directions have been normalised
     vec3 N = normalize(vNormal);
     vec3 L = normalize(LightDirection);
+    vec3 T = normalize(vTangent);
+    vec3 B = normalize(vBiTangent);
+
+    mat3 TBN = mat3(T, B, N);
 
     vec3 texDiffuse = texture(diffuseTexture, vTexCoord).rgb;
     vec3 texSpecular = texture(specularTexture, vTexCoord).rgb;
+    vec3 texNormal = texture(normalTexture, vTexCoord).rgb;
+    
+    N = TBN * (texNormal * 2 - 1);
 
     // Now we can calculate the lambert term, negative the light direction
     float lambertTerm = max(0, min(1, dot(N, -L)));
@@ -47,7 +57,16 @@ void main()
     vec3 diffuse = LightColor * Kd * texDiffuse * lambertTerm;
 
     // Determnine the value of the specular
-    vec3 specular = LightColor * Ks * texSpecular *specularTerm;
+    vec3 specular = LightColor * Ks * texSpecular * specularTerm;
+
+    // Show the normals
+    // FragColor = vec4(N, 1);
+
+    // Show the texture normals
+    // FragColor =  vec4(texNormal, 1);
+
+    // Show without texture
+    FragColor = vec4(ambient + lambertTerm + specular, 1);
 
     // Output the final color
     FragColor = vec4(ambient + diffuse + specular, 1);

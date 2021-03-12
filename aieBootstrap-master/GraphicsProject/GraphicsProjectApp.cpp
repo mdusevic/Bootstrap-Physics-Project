@@ -270,6 +270,28 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic()
 
 #pragma endregion
 
+#pragma region Baby Yoda
+	m_yodaShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
+
+	// Load the fragment shader from a file
+	m_yodaShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
+
+	if (!m_yodaShader.link())
+	{
+		printf("Yoda Shader had an error: %s\n", m_yodaShader.getLastError());
+		return false;
+	}
+
+	if (m_yodaMesh.load("./babyyoda/baby_yoda.obj", true, true) == false)
+	{
+		printf("Baby yoda Mesh Failed!\n");
+		return false;
+	}
+
+	m_yodaPos = { 6, 0, 6 };
+
+#pragma endregion
+
 #pragma region Phong
 	m_phongShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/phong.vert");
 	m_phongShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/phong.frag");
@@ -407,6 +429,27 @@ void GraphicsProjectApp::DrawShaderAndMeshes(glm::mat4 a_projectionMatrix, glm::
 
 #pragma endregion
 
+#pragma region Baby Yoda
+	 m_normalMapShader.bind();
+
+	 // Bind the camera position
+	 m_normalMapShader.bindUniform("CameraPosition", m_camera.GetPosition());
+
+	 // Bind the light
+	 m_normalMapShader.bindUniform("AmbientColor", m_ambientLight);
+	 m_normalMapShader.bindUniform("LightColor", m_light.color);
+	 m_normalMapShader.bindUniform("LightDirection", m_light.direction);
+
+	 m_normalMapShader.bindUniform("ModelMatrix", m_yodaTransform);
+
+	 pvm = a_projectionMatrix * a_viewMatrix * m_yodaTransform;
+	 m_normalMapShader.bindUniform("ProjectionViewModel", pvm);
+
+	 // Draw yoda mesh
+	 m_yodaMesh.draw();
+
+#pragma endregion
+
 #pragma region Phong
 	// Bind the shader
 	m_phongShader.bind();
@@ -508,9 +551,17 @@ void GraphicsProjectApp::UpdateObjectTransforms()
 		   0,     0,  1.0f,  0,
 		m_spearPos.x, m_spearPos.y, m_spearPos.z, 1
 	};
+
+	// --- BABY YODA ---
+	m_yodaTransform = {
+		0.2f,     0,     0,  0,
+		   0,  0.2f,     0,  0,
+		   0,     0,  0.2f,  0,
+		m_yodaPos.x, m_yodaPos.y, m_yodaPos.z, 1
+	};
 }
 
-void GraphicsProjectApp::IMGUI_Logic()
+void GraphicsProjectApp::IMGUI_Logic() 
 {
 	ImGui::Begin("Scene Light Settings");
 	ImGui::DragFloat3("Sunlight Direction", &m_light.direction[0], 0.1f, -1.0f, 1.0f);
@@ -523,6 +574,7 @@ void GraphicsProjectApp::IMGUI_Logic()
 	ImGui::DragFloat3("Buddha Position", &m_buddhaPos[0], 0.1f);
 	ImGui::DragFloat3("Lucy Position", &m_lucyPos[0], 0.1f);
 	ImGui::DragFloat3("Soul Spear Position", &m_spearPos[0], 0.1f);
+	ImGui::DragFloat3("Baby Yoda Position", &m_yodaPos[0], 0.1f);
 
 	UpdateObjectTransforms();
 
