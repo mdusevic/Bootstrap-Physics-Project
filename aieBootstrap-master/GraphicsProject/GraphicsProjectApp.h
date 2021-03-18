@@ -5,9 +5,11 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "OBJMesh.h"
+#include "Scene.h"
 #include <glm/mat4x4.hpp>
 
-class GraphicsProjectApp : public aie::Application {
+class GraphicsProjectApp : public aie::Application
+{
 public:
 
 	GraphicsProjectApp();
@@ -18,8 +20,6 @@ public:
 
 	virtual void update(float deltaTime);
 	virtual void draw();
-
-	void SolarSystem(float dt);
 
 protected:
 	Camera m_camera;
@@ -38,6 +38,7 @@ protected:
 	aie::ShaderProgram m_lucyShader;
 	aie::ShaderProgram m_spearShader;
 	aie::ShaderProgram m_yodaShader;
+	aie::ShaderProgram m_grenadeShader;
 	aie::ShaderProgram m_phongShader;
 	aie::ShaderProgram m_textureShader;
 	aie::ShaderProgram m_normalMapShader;
@@ -69,19 +70,25 @@ protected:
 	aie::OBJMesh m_yodaMesh;
 	glm::mat4 m_yodaTransform;
 	glm::vec3 m_yodaPos;
+	// Create a grenade
+	aie::OBJMesh m_grenadeMesh;
+	glm::mat4 m_grenadeTransform;
+	glm::vec3 m_grenadePos;
 
-	struct Light
-	{
-		glm::vec3 direction;
-		glm::vec3 color;
-	};
+	Scene* m_scene;
 
-	Light m_light;
-	glm::vec3 m_ambientLight;
+	//struct Light
+	//{
+	//	glm::vec3 direction;
+	//	glm::vec3 color;
+	//};
+
+	//Light m_light;
+	//glm::vec3 m_ambientLight;
 
 public:
-	bool LoadShaderAndMeshLogic();
-	void DrawShaderAndMeshes(glm::mat4, glm::mat4);
+	bool LoadShaderAndMeshLogic(Light a_light);
+	//void DrawShaderAndMeshes(glm::mat4, glm::mat4);
 	void UpdateObjectTransforms();
 	void IMGUI_Logic();
 };

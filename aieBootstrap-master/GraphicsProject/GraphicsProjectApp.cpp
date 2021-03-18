@@ -2,6 +2,9 @@
 #include "Gizmos.h"
 #include "Input.h"
 
+#include "Scene.h"
+#include "Instance.h"
+
 #define GLM_ENABLE_EXPERIMENTAL 1
 
 #include <imgui.h>
@@ -37,10 +40,11 @@ bool GraphicsProjectApp::startup()
 	m_viewMatrix = glm::lookAt(vec3(10), vec3(0), vec3(0, 1, 0));
 	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f, getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.0f);
 
-	m_light.color = { 1, 1, 1 };
-	m_ambientLight = { 0.25f, 0.25f, 0.25f};
+	Light light;
+	light.m_color = { 1, 1, 1 };
+	light.m_direction = { 1, -1, 1 };
 
-	return LoadShaderAndMeshLogic();
+	return LoadShaderAndMeshLogic(light);
 }
 
 void GraphicsProjectApp::shutdown()
@@ -75,7 +79,7 @@ void GraphicsProjectApp::update(float deltaTime)
 
 	float time = getTime();
 
-	m_light.direction = glm::normalize(glm::vec3(glm::cos(time * 2), glm::sin(time * 2), 0));
+	m_scene->GetLight().m_direction = glm::normalize(glm::vec3(glm::cos(time * 2), glm::sin(time * 2), 0));
 
 	//SolarSystem(deltaTime);
 
@@ -97,22 +101,13 @@ void GraphicsProjectApp::draw()
 	// update perspective based on screen size
 	//m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f, getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.0f);
 
-	DrawShaderAndMeshes(projectionMatrix, viewMatrix);
+	//DrawShaderAndMeshes(projectionMatrix, viewMatrix);
+	m_scene->Draw();
 
 	Gizmos::draw(projectionMatrix * viewMatrix);
 }
 
-void GraphicsProjectApp::SolarSystem(float dt)
-{
-	// Sun
-	Gizmos::addSphere(glm::vec3(0, 0, 0), 1.0f, 16, 16, glm::vec4(1, 0.8, 0, 1));
-
-	//Mercury
-	/*glm::vec3 mercuryPos = glm::rotate(10.0f, glm::vec3(2, 0, 0));*/
-	Gizmos::addSphere(glm::vec3(2, 0, 0), 0.15f, 16, 16, glm::vec4(1, 0.8, 0, 1));
-}
-
-bool GraphicsProjectApp::LoadShaderAndMeshLogic()
+bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 {
 #pragma region Quad
 	// Load the vertex shader from a file
@@ -160,115 +155,117 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic()
 
 #pragma endregion
 
-#pragma region FlatBunny
-	m_bunnyShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
-
-	// Load the fragment shader from a file
-	m_bunnyShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-
-	if (!m_bunnyShader.link())
-	{
-		printf("Bunny Shader had an error: %s\n", m_bunnyShader.getLastError());
-		return false;
-	}
-
-	if (m_bunnyMesh.load("./stanford/bunny.obj") == false)
-	{
-		printf("Bunny Mesh Failed!\n");
-		return false;
-	}
-
-	m_bunnyPos = { -8, 0, 0 };
-
-#pragma endregion
-
-#pragma region Dragon
-	m_dragonShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
-
-	// Load the fragment shader from a file
-	m_dragonShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-
-	if (!m_dragonShader.link())
-	{
-		printf("Dragon Shader had an error: %s\n", m_dragonShader.getLastError());
-		return false;
-	}
-
-	if (m_dragonMesh.load("./stanford/dragon.obj") == false)
-	{
-		printf("Dragon Mesh Failed!\n");
-		return false;
-	}
-
-	m_dragonPos = { -2, 0, 0 };
-
-#pragma endregion
-
-#pragma region Buddha
-	m_buddhaShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
-
-	// Load the fragment shader from a file
-	m_buddhaShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-
-	if (!m_buddhaShader.link())
-	{
-		printf("Buddha Shader had an error: %s\n", m_buddhaShader.getLastError());
-		return false;
-	}
-
-	if (m_buddhaMesh.load("./stanford/buddha.obj") == false)
-	{
-		printf("Dragon Mesh Failed!\n");
-		return false;
-	}
-
-	m_buddhaPos = { 3, 0, 0 };
-
-#pragma endregion
-
-#pragma region Lucy
-	m_lucyShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
-
-	// Load the fragment shader from a file
-	m_lucyShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-
-	if (!m_lucyShader.link())
-	{
-		printf("Buddha Shader had an error: %s\n", m_lucyShader.getLastError());
-		return false;
-	}
-
-	if (m_lucyMesh.load("./stanford/lucy.obj") == false)
-	{
-		printf("Lucy Mesh Failed!\n");
-		return false;
-	}
-
-	m_lucyPos = { 6, 0, 0 };
-
-#pragma endregion
-
-#pragma region SoulSpear
-	m_spearShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
-
-	// Load the fragment shader from a file
-	m_spearShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
-
-	if (!m_spearShader.link())
-	{
-		printf("Spear Shader had an error: %s\n", m_spearShader.getLastError());
-		return false;
-	}
-
-	if (m_spearMesh.load("./soulspear/soulspear.obj", true, true) == false)
-	{
-		printf("Soul spear Mesh Failed!\n");
-		return false;
-	}
-
-	m_spearPos = { -4, 0, 4 };
-
-#pragma endregion
+//#pragma region FlatBunny
+//	m_bunnyShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
+//
+//	// Load the fragment shader from a file
+//	m_bunnyShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
+//
+//	if (!m_bunnyShader.link())
+//	{
+//		printf("Bunny Shader had an error: %s\n", m_bunnyShader.getLastError());
+//		return false;
+//	}
+//
+//	if (m_bunnyMesh.load("./stanford/bunny.obj") == false)
+//	{
+//		printf("Bunny Mesh Failed!\n");
+//		return false;
+//	}
+//
+//	m_bunnyPos = { -8, 0, 0 };
+//
+//#pragma endregion
+//
+//#pragma region Dragon
+//	m_dragonShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
+//
+//	// Load the fragment shader from a file
+//	m_dragonShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
+//
+//	if (!m_dragonShader.link())
+//	{
+//		printf("Dragon Shader had an error: %s\n", m_dragonShader.getLastError());
+//		return false;
+//	}
+//
+//	if (m_dragonMesh.load("./stanford/dragon.obj") == false)
+//	{
+//		printf("Dragon Mesh Failed!\n");
+//		return false;
+//	}
+//
+//	m_dragonPos = { -2, 0, 0 };
+//
+//#pragma endregion
+//
+//#pragma region Buddha
+//	m_buddhaShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
+//
+//	// Load the fragment shader from a file
+//	m_buddhaShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
+//
+//	if (!m_buddhaShader.link())
+//	{
+//		printf("Buddha Shader had an error: %s\n", m_buddhaShader.getLastError());
+//		return false;
+//	}
+//
+//	if (m_buddhaMesh.load("./stanford/buddha.obj") == false)
+//	{
+//		printf("Dragon Mesh Failed!\n");
+//		return false;
+//	}
+//
+//	m_buddhaPos = { 3, 0, 0 };
+//
+//#pragma endregion
+//
+//#pragma region Lucy
+//	m_lucyShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
+//
+//	// Load the fragment shader from a file
+//	m_lucyShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
+//
+//	if (!m_lucyShader.link())
+//	{
+//		printf("Buddha Shader had an error: %s\n", m_lucyShader.getLastError());
+//		return false;
+//	}
+//
+//	if (m_lucyMesh.load("./stanford/lucy.obj") == false)
+//	{
+//		printf("Lucy Mesh Failed!\n");
+//		return false;
+//	}
+//
+//	m_lucyPos = { 6, 0, 0 };
+//
+//#pragma endregion
+//
+//
+//
+//#pragma region Grenade
+//	m_grenadeShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
+//
+//	// Load the fragment shader from a file
+//	m_grenadeShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
+//
+//	if (!m_grenadeShader.link())
+//	{
+//		printf("Grenade Shader had an error: %s\n", m_grenadeShader.getLastError());
+//		return false;
+//	}
+//
+//	if (m_grenadeMesh.load("./grenade/uploads_files_2503290_Hand_Grenade.obj", true, true) == false)
+//	{
+//		printf("Grenade Mesh Failed!\n");
+//		return false;
+//	}
+//
+//	m_grenadePos = { -6, 0, 6 };
+//
+//#pragma endregion
 
 #pragma region Baby Yoda
 	m_yodaShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
@@ -289,6 +286,28 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic()
 	}
 
 	m_yodaPos = { 6, 0, 6 };
+
+#pragma endregion
+
+#pragma region SoulSpear
+	m_spearShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
+	
+	// Load the fragment shader from a file
+	m_spearShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
+	
+	if (!m_spearShader.link())
+	{
+		printf("Spear Shader had an error: %s\n", m_spearShader.getLastError());
+		return false;
+	}
+	
+	if (m_spearMesh.load("./soulspear/soulspear.obj", true, true) == false)
+	{
+		printf("Soul spear Mesh Failed!\n");
+		return false;
+	}
+	
+	m_spearPos = { -4, 0, 4 };
 
 #pragma endregion
 
@@ -337,178 +356,218 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic()
 
 #pragma endregion
 
+#pragma region Objects
+	m_scene = new Scene(&m_camera, glm::vec2(getWindowWidth(), getWindowHeight()), a_light, glm::vec3(0.25f));
+
+	// Row of spears
+	for (int i = 0; i < 10; i++)
+	{
+		m_scene->AddInstance(new Instance(glm::vec3(i * 2, 0, 0), glm::vec3(0, i * 30, 0), glm::vec3(1, 1, 1), &m_spearMesh, &m_normalMapShader));
+	}
+
+	// Baby Yoda
+	m_scene->AddInstance(new Instance(glm::vec3(5, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0.2, 0.2, 0.2), &m_yodaMesh, &m_normalMapShader));
+
+#pragma endregion
+
+	// Add a red light on the left side
+	m_scene->GetPointLights().push_back(Light(vec3(5, 3, 0), vec3(1, 0, 0), 50));
+	// Add a green light on the right side
+	m_scene->GetPointLights().push_back(Light(vec3(-5, 3, 0), vec3(0, 1, 0), 50));
+
 	return true;
 }
 
-void GraphicsProjectApp::DrawShaderAndMeshes(glm::mat4 a_projectionMatrix, glm::mat4 a_viewMatrix)
-{
-	// PVM = Projection View Matrix
-	auto pvm = a_projectionMatrix * a_viewMatrix * glm::mat4(0);
-
-#pragma region Quad
-	// Bind the shader
-	m_textureShader.bind();
-
-	// Bind the transform of the mesh
-	pvm = a_projectionMatrix * a_viewMatrix * m_quadTransform;
-	m_textureShader.bindUniform("ProjectionViewModel", pvm);
-
-	// Bind the texture to a location of your choice (0)
-	m_textureShader.bindUniform("diffuseTexture", 0);
-
-	// Bind the texture to the specified location
-	m_gridTexture.bind(0);
-
-	// Draw the quad
-	m_quadMesh.Draw();
-
-#pragma endregion
-
-#pragma region FlatBunny
-	m_bunnyShader.bind();
-	pvm = a_projectionMatrix * a_viewMatrix * m_bunnyTransform;
-	m_bunnyShader.bindUniform("ProjectionViewModel", pvm);
-	m_bunnyShader.bindUniform("MeshFlatColor", glm::vec4(0, 1, 0, 1));
-
-	// Draw bunny mesh
-	// m_bunnyMesh.draw();
-
-#pragma endregion
-
-#pragma region Dragon
-	m_dragonShader.bind();
-	pvm = a_projectionMatrix * a_viewMatrix * m_dragonTransform;
-	m_dragonShader.bindUniform("ProjectionViewModel", pvm);
-	m_dragonShader.bindUniform("MeshFlatColor", glm::vec4(0, 1, 0, 1));
-
-	// Draw dragon mesh
-	// m_dragonMesh.draw();
-
-#pragma endregion
-
-#pragma region Buddha
-	m_buddhaShader.bind();
-	pvm = a_projectionMatrix * a_viewMatrix * m_buddhaTransform;
-	m_buddhaShader.bindUniform("ProjectionViewModel", pvm);
-	m_buddhaShader.bindUniform("MeshFlatColor", glm::vec4(1, 0, 1, 1));
-
-	// Draw buddha mesh
-	// m_buddhaMesh.draw();
-
-#pragma endregion
-
-#pragma region Lucy
-	m_lucyShader.bind();
-	pvm = a_projectionMatrix * a_viewMatrix * m_lucyTransform;
-	m_lucyShader.bindUniform("ProjectionViewModel", pvm);
-	m_lucyShader.bindUniform("MeshFlatColor", glm::vec4(0, 1, 1, 1));
-
-	// Draw lucy mesh
-	// m_lucyMesh.draw();
-
-#pragma endregion
-
-#pragma region SoulSpear
-	m_normalMapShader.bind();
-
-	// Bind the camera position
-	m_normalMapShader.bindUniform("CameraPosition", m_camera.GetPosition());
-
-	// Bind the light
-	m_normalMapShader.bindUniform("AmbientColor", m_ambientLight);
-	m_normalMapShader.bindUniform("LightColor", m_light.color);
-	m_normalMapShader.bindUniform("LightDirection", m_light.direction);
-
-	m_normalMapShader.bindUniform("ModelMatrix", m_spearTransform);
-	
-	pvm = a_projectionMatrix * a_viewMatrix * m_spearTransform;
-	m_normalMapShader.bindUniform("ProjectionViewModel", pvm);
-
-	// Draw spear mesh
-	 m_spearMesh.draw();
-
-#pragma endregion
-
-#pragma region Baby Yoda
-	 m_normalMapShader.bind();
-
-	 // Bind the camera position
-	 m_normalMapShader.bindUniform("CameraPosition", m_camera.GetPosition());
-
-	 // Bind the light
-	 m_normalMapShader.bindUniform("AmbientColor", m_ambientLight);
-	 m_normalMapShader.bindUniform("LightColor", m_light.color);
-	 m_normalMapShader.bindUniform("LightDirection", m_light.direction);
-
-	 m_normalMapShader.bindUniform("ModelMatrix", m_yodaTransform);
-
-	 pvm = a_projectionMatrix * a_viewMatrix * m_yodaTransform;
-	 m_normalMapShader.bindUniform("ProjectionViewModel", pvm);
-
-	 // Draw yoda mesh
-	 m_yodaMesh.draw();
-
-#pragma endregion
-
-#pragma region Phong
-	// Bind the shader
-	m_phongShader.bind();
-
-	// Bind the camera position
-	m_phongShader.bindUniform("CameraPosition", vec3(glm::inverse(a_viewMatrix)[3]));
-
-	// Bind the light
-	m_phongShader.bindUniform("AmbientColor", m_ambientLight);
-	m_phongShader.bindUniform("LightColor", m_light.color);
-	m_phongShader.bindUniform("LightDirection", m_light.direction);
-
-	// --- BUNNY ---
-	// Bind the PVM
-	pvm = a_projectionMatrix * a_viewMatrix * m_bunnyTransform;
-	m_phongShader.bindUniform("ProjectionViewModel", pvm);
-
-	// Bind the lighting transforms
-	m_phongShader.bindUniform("ModelMatrix", m_bunnyTransform);
-
-	// Draw mesh
-	m_bunnyMesh.draw();
-
-	// --- DRAGON ---
-	// Bind the PVM
-	pvm = a_projectionMatrix * a_viewMatrix * m_dragonTransform;
-	m_phongShader.bindUniform("ProjectionViewModel", pvm);
-
-	// Bind the lighting transforms
-	m_phongShader.bindUniform("ModelMatrix", m_dragonTransform);
-
-	// Draw mesh
-	m_dragonMesh.draw();
-
-	// --- BUDDHA ---
-    // Bind the PVM
-	pvm = a_projectionMatrix * a_viewMatrix * m_buddhaTransform;
-	m_phongShader.bindUniform("ProjectionViewModel", pvm);
-
-	// Bind the lighting transforms
-	m_phongShader.bindUniform("ModelMatrix", m_buddhaTransform);
-
-	// Draw mesh
-	m_buddhaMesh.draw();
-
-	// --- LUCY ---
-    // Bind the PVM
-	pvm = a_projectionMatrix * a_viewMatrix * m_lucyTransform;
-	m_phongShader.bindUniform("ProjectionViewModel", pvm);
-
-	// Bind the lighting transforms
-	m_phongShader.bindUniform("ModelMatrix", m_lucyTransform);
-
-	// Draw mesh
-	m_lucyMesh.draw();
-
-#pragma endregion
-
-}
+//void GraphicsProjectApp::DrawShaderAndMeshes(glm::mat4 a_projectionMatrix, glm::mat4 a_viewMatrix)
+//{
+//	 PVM = Projection View Matrix
+//	auto pvm = a_projectionMatrix * a_viewMatrix * glm::mat4(0);
+//
+//#pragma region Quad
+//	 Bind the shader
+//	m_textureShader.bind();
+//
+//	 Bind the transform of the mesh
+//	pvm = a_projectionMatrix * a_viewMatrix * m_quadTransform;
+//	m_textureShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	 Bind the texture to a location of your choice (0)
+//	m_textureShader.bindUniform("diffuseTexture", 0);
+//
+//	 Bind the texture to the specified location
+//	m_gridTexture.bind(0);
+//
+//	 Draw the quad
+//	m_quadMesh.Draw();
+//
+//#pragma endregion
+//
+//#pragma region FlatBunny
+//	m_bunnyShader.bind();
+//	pvm = a_projectionMatrix * a_viewMatrix * m_bunnyTransform;
+//	m_bunnyShader.bindUniform("ProjectionViewModel", pvm);
+//	m_bunnyShader.bindUniform("MeshFlatColor", glm::vec4(0, 1, 0, 1));
+//
+//	 Draw bunny mesh
+//	 m_bunnyMesh.draw();
+//
+//#pragma endregion
+//
+//#pragma region Dragon
+//	m_dragonShader.bind();
+//	pvm = a_projectionMatrix * a_viewMatrix * m_dragonTransform;
+//	m_dragonShader.bindUniform("ProjectionViewModel", pvm);
+//	m_dragonShader.bindUniform("MeshFlatColor", glm::vec4(0, 1, 0, 1));
+//
+//	 Draw dragon mesh
+//	 m_dragonMesh.draw();
+//
+//#pragma endregion
+//
+//#pragma region Buddha
+//	m_buddhaShader.bind();
+//	pvm = a_projectionMatrix * a_viewMatrix * m_buddhaTransform;
+//	m_buddhaShader.bindUniform("ProjectionViewModel", pvm);
+//	m_buddhaShader.bindUniform("MeshFlatColor", glm::vec4(1, 0, 1, 1));
+//
+//	 Draw buddha mesh
+//	 m_buddhaMesh.draw();
+//
+//#pragma endregion
+//
+//#pragma region Lucy
+//	m_lucyShader.bind();
+//	pvm = a_projectionMatrix * a_viewMatrix * m_lucyTransform;
+//	m_lucyShader.bindUniform("ProjectionViewModel", pvm);
+//	m_lucyShader.bindUniform("MeshFlatColor", glm::vec4(0, 1, 1, 1));
+//
+//	 Draw lucy mesh
+//	 m_lucyMesh.draw();
+//
+//#pragma endregion
+//
+//#pragma region SoulSpear
+//	m_normalMapShader.bind();
+//
+//	 Bind the camera position
+//	m_normalMapShader.bindUniform("CameraPosition", m_camera.GetPosition());
+//
+//	 Bind the light
+//	m_normalMapShader.bindUniform("AmbientColor", m_ambientLight);
+//	m_normalMapShader.bindUniform("LightColor", m_light.color);
+//	m_normalMapShader.bindUniform("LightDirection", m_light.direction);
+//
+//	m_normalMapShader.bindUniform("ModelMatrix", m_spearTransform);
+//
+//	pvm = a_projectionMatrix * a_viewMatrix * m_spearTransform;
+//	m_normalMapShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	 Draw spear mesh
+//	m_spearMesh.draw();
+//
+//#pragma endregion
+//
+//#pragma region Baby Yoda
+//	 m_normalMapShader.bind();
+//
+//	  Bind the camera position
+//	 m_normalMapShader.bindUniform("CameraPosition", m_camera.GetPosition());
+//
+//	  Bind the light
+//	 m_normalMapShader.bindUniform("AmbientColor", m_ambientLight);
+//	 m_normalMapShader.bindUniform("LightColor", m_light.color);
+//	 m_normalMapShader.bindUniform("LightDirection", m_light.direction);
+//
+//	 m_normalMapShader.bindUniform("ModelMatrix", m_yodaTransform);
+//
+//	 pvm = a_projectionMatrix * a_viewMatrix * m_yodaTransform;
+//	 m_normalMapShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	  Draw yoda mesh
+//	 m_yodaMesh.draw();
+//
+//#pragma endregion
+//
+//#pragma region Grenade
+//	 m_normalMapShader.bind();
+//
+//	  Bind the camera position
+//	 m_normalMapShader.bindUniform("CameraPosition", m_camera.GetPosition());
+//
+//	  Bind the light
+//	 m_normalMapShader.bindUniform("AmbientColor", m_ambientLight);
+//	 m_normalMapShader.bindUniform("LightColor", m_light.color);
+//	 m_normalMapShader.bindUniform("LightDirection", m_light.direction);
+//
+//	 m_normalMapShader.bindUniform("ModelMatrix", m_yodaTransform);
+//
+//	 pvm = a_projectionMatrix * a_viewMatrix * m_yodaTransform;
+//	 m_normalMapShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	  Draw grenade mesh
+//	 m_grenadeMesh.draw();
+//
+//#pragma endregion
+//
+//#pragma region Phong
+//	 Bind the shader
+//	m_phongShader.bind();
+//
+//	 Bind the camera position
+//	m_phongShader.bindUniform("CameraPosition", vec3(glm::inverse(a_viewMatrix)[3]));
+//
+//	 Bind the light
+//	m_phongShader.bindUniform("AmbientColor", m_ambientLight);
+//	m_phongShader.bindUniform("LightColor", m_light.color);
+//	m_phongShader.bindUniform("LightDirection", m_light.direction);
+//
+//	 --- BUNNY ---
+//	 Bind the PVM
+//	pvm = a_projectionMatrix * a_viewMatrix * m_bunnyTransform;
+//	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	 Bind the lighting transforms
+//	m_phongShader.bindUniform("ModelMatrix", m_bunnyTransform);
+//
+//	 Draw mesh
+//	m_bunnyMesh.draw();
+//
+//	 --- DRAGON ---
+//	 Bind the PVM
+//	pvm = a_projectionMatrix * a_viewMatrix * m_dragonTransform;
+//	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	 Bind the lighting transforms
+//	m_phongShader.bindUniform("ModelMatrix", m_dragonTransform);
+//
+//	 Draw mesh
+//	m_dragonMesh.draw();
+//
+//	 --- BUDDHA ---
+//     Bind the PVM
+//	pvm = a_projectionMatrix * a_viewMatrix * m_buddhaTransform;
+//	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	 Bind the lighting transforms
+//	m_phongShader.bindUniform("ModelMatrix", m_buddhaTransform);
+//
+//	 Draw mesh
+//	m_buddhaMesh.draw();
+//
+//	 --- LUCY ---
+//     Bind the PVM
+//	pvm = a_projectionMatrix * a_viewMatrix * m_lucyTransform;
+//	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	 Bind the lighting transforms
+//	m_phongShader.bindUniform("ModelMatrix", m_lucyTransform);
+//
+//	 Draw mesh
+//	m_lucyMesh.draw();
+//
+//#pragma endregion
+//
+//}
 
 void GraphicsProjectApp::UpdateObjectTransforms()
 {
@@ -559,24 +618,33 @@ void GraphicsProjectApp::UpdateObjectTransforms()
 		   0,     0,  0.2f,  0,
 		m_yodaPos.x, m_yodaPos.y, m_yodaPos.z, 1
 	};
+
+	// --- GRENADE ---
+	m_grenadeTransform = {
+		10.0f,       0,      0,  0,
+		    0,   10.0f,      0,  0,
+		    0,       0,  10.0f,  0,
+		m_grenadePos.x, m_grenadePos.y, m_grenadePos.z, 1
+	};
 }
 
 void GraphicsProjectApp::IMGUI_Logic() 
 {
 	ImGui::Begin("Scene Light Settings");
-	ImGui::DragFloat3("Sunlight Direction", &m_light.direction[0], 0.1f, -1.0f, 1.0f);
-	ImGui::DragFloat3("Sunlight Color", &m_light.color[0], 0.1f, 0.0f, 2.0f);
+	ImGui::DragFloat3("Sunlight Direction", &m_scene->GetLight().m_direction[0], 0.1f, -1.0f, 1.0f);
+	ImGui::DragFloat3("Sunlight Color", &m_scene->GetLight().m_color[0], 0.1f, 0.0f, 2.0f);
 	ImGui::End();
 
 	ImGui::Begin("Object Settings");
-	ImGui::DragFloat3("Bunny Position", &m_bunnyPos[0], 0.1f);
-	ImGui::DragFloat3("Dragon Position", &m_dragonPos[0], 0.1f);
-	ImGui::DragFloat3("Buddha Position", &m_buddhaPos[0], 0.1f);
-	ImGui::DragFloat3("Lucy Position", &m_lucyPos[0], 0.1f);
-	ImGui::DragFloat3("Soul Spear Position", &m_spearPos[0], 0.1f);
-	ImGui::DragFloat3("Baby Yoda Position", &m_yodaPos[0], 0.1f);
+	//ImGui::DragFloat3("Bunny Position", &m_bunnyPos[0], 0.1f);
+	//ImGui::DragFloat3("Dragon Position", &m_dragonPos[0], 0.1f);
+	//ImGui::DragFloat3("Buddha Position", &m_buddhaPos[0], 0.1f);
+	//ImGui::DragFloat3("Lucy Position", &m_lucyPos[0], 0.1f);
+	//ImGui::DragFloat3("Soul Spear Position", &m_spearPos[0], 0.1f);
+	//ImGui::DragFloat3("Baby Yoda Position", &m_yodaPos[0], 0.1f);
+	//ImGui::DragFloat3("Grenade Position", &m_grenadePos[0], 0.1f);
 
-	UpdateObjectTransforms();
+	//UpdateObjectTransforms();
 
 	ImGui::End();
 }
