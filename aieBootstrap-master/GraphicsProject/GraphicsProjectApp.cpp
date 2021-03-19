@@ -13,6 +13,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <iostream>
 
 using glm::vec3;
 using glm::vec4;
@@ -285,8 +287,6 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 		return false;
 	}
 
-	m_yodaPos = { 6, 0, 6 };
-
 #pragma endregion
 
 #pragma region SoulSpear
@@ -358,15 +358,17 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 
 #pragma region Objects
 	m_scene = new Scene(&m_camera, glm::vec2(getWindowWidth(), getWindowHeight()), a_light, glm::vec3(0.25f));
+	int count = 0;
 
 	// Row of spears
 	for (int i = 0; i < 10; i++)
 	{
-		m_scene->AddInstance(new Instance(glm::vec3(i * 2, 0, 0), glm::vec3(0, i * 30, 0), glm::vec3(1, 1, 1), &m_spearMesh, &m_normalMapShader));
+		count++;
+		m_scene->AddInstance(new Instance("Spear" + std::to_string(count) , glm::vec3(i * 2, 0, 0), glm::vec3(0, i * 30, 0), glm::vec3(1, 1, 1), &m_spearMesh, &m_normalMapShader));
 	}
 
 	// Baby Yoda
-	m_scene->AddInstance(new Instance(glm::vec3(5, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0.2, 0.2, 0.2), &m_yodaMesh, &m_normalMapShader));
+	//m_scene->AddInstance(new Instance("Yoda", glm::vec3(5, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0.2, 0.2, 0.2), &m_yodaMesh, &m_normalMapShader));
 
 #pragma endregion
 
@@ -635,16 +637,61 @@ void GraphicsProjectApp::IMGUI_Logic()
 	ImGui::DragFloat3("Sunlight Color", &m_scene->GetLight().m_color[0], 0.1f, 0.0f, 2.0f);
 	ImGui::End();
 
-	ImGui::Begin("Object Settings");
-	//ImGui::DragFloat3("Bunny Position", &m_bunnyPos[0], 0.1f);
-	//ImGui::DragFloat3("Dragon Position", &m_dragonPos[0], 0.1f);
-	//ImGui::DragFloat3("Buddha Position", &m_buddhaPos[0], 0.1f);
-	//ImGui::DragFloat3("Lucy Position", &m_lucyPos[0], 0.1f);
-	//ImGui::DragFloat3("Soul Spear Position", &m_spearPos[0], 0.1f);
-	//ImGui::DragFloat3("Baby Yoda Position", &m_yodaPos[0], 0.1f);
-	//ImGui::DragFloat3("Grenade Position", &m_grenadePos[0], 0.1f);
+	ImGui::Begin("Inspector");
+	
+	std::vector<Instance*> Objects;
+	for (Instance* const& c : m_scene->GetAllInstances())
+	{
+		Objects.push_back(c);
+	}
 
-	//UpdateObjectTransforms();
+	for each (auto obj in Objects)
+	{
+		glm::vec3 scale = glm::vec3(1.0f);
+		glm::quat rotation = glm::quat();
+		glm::vec3 translation = glm::vec3(1.0f);
+		glm::vec3 skew;
+		glm::vec4 perspective;
+
+		glm::decompose(obj->GetTransform(), scale, rotation, translation, skew, perspective);
+		rotation = glm::conjugate(rotation);
+		glm::vec3 rot = glm::eulerAngles(rotation);
+
+		//glm::vec3 objPos = translation;
+		//glm::vec3 objRot = glm::eulerAngles(rotation);
+		//glm::vec3 objScale = scale;
+
+		if (ImGui::CollapsingHeader(obj->GetObjectName().c_str()))
+		{
+			ImGui::Indent();
+			if (ImGui::TreeNode("Transform"))
+			{
+				if (ImGui::DragFloat3("Position:", &translation[0], 0.1f))
+				{
+
+				}
+
+				if (ImGui::DragFloat3("Rotation:", &rot[0], 0.1f, 0.0f, 360.0f))
+				{
+
+				}
+
+				if (ImGui::DragFloat3("Scale:", &scale[0], 0.1f))
+				{
+
+				}
+
+				obj->SetTransform(obj->MakeTransform(translation, rot, scale));
+
+				std::cout << glm::to_string(rot) << std::endl;
+
+				ImGui::TreePop();
+			}
+			ImGui::Unindent();
+		}
+	}
+
+	UpdateObjectTransforms();
 
 	ImGui::End();
 }

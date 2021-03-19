@@ -46,6 +46,8 @@ public:
 
 	std::vector<Light>& GetPointLights() { return m_pointLights; }
 
+	std::list<Instance*> GetAllInstances() { return m_instances; }
+
 protected:
 	Camera* m_camera;
 	glm::vec2 m_windowSize;
