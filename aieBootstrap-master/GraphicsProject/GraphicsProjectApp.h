@@ -32,12 +32,8 @@ protected:
 
 	// --- SHADER ---
 	aie::ShaderProgram m_simpleShader;
-	aie::ShaderProgram m_bunnyShader;
 	aie::ShaderProgram m_dragonShader;
-	aie::ShaderProgram m_buddhaShader;
-	aie::ShaderProgram m_lucyShader;
 	aie::ShaderProgram m_spearShader;
-	aie::ShaderProgram m_yodaShader;
 	aie::ShaderProgram m_grenadeShader;
 	aie::ShaderProgram m_phongShader;
 	aie::ShaderProgram m_textureShader;
@@ -46,34 +42,12 @@ protected:
 	// Basic Plane
 	Mesh m_quadMesh;
 	glm::mat4 m_quadTransform;
-	// Create a Bunny with a flat color
-	aie::OBJMesh m_bunnyMesh;
-	glm::mat4 m_bunnyTransform;
-	glm::vec3 m_bunnyPos;
 	// Create a Dragon with a flat color
 	aie::OBJMesh m_dragonMesh;
-	glm::mat4 m_dragonTransform;
-	glm::vec3 m_dragonPos;
-	// Create a Buddha with a flat color
-	aie::OBJMesh m_buddhaMesh;
-	glm::mat4 m_buddhaTransform;
-	glm::vec3 m_buddhaPos;
-	// Create Lucy with a flat color
-	aie::OBJMesh m_lucyMesh;
-	glm::mat4 m_lucyTransform;
-	glm::vec3 m_lucyPos;
 	// Create a SoulSpear 
 	aie::OBJMesh m_spearMesh;
-	glm::mat4 m_spearTransform;
-	glm::vec3 m_spearPos;
-	// Create a Baby Yoda
-	aie::OBJMesh m_yodaMesh;
-	glm::mat4 m_yodaTransform;
-	glm::vec3 m_yodaPos;
 	// Create a grenade
 	aie::OBJMesh m_grenadeMesh;
-	glm::mat4 m_grenadeTransform;
-	glm::vec3 m_grenadePos;
 
 	Scene* m_scene;
 
@@ -89,6 +63,5 @@ protected:
 public:
 	bool LoadShaderAndMeshLogic(Light a_light);
 	//void DrawShaderAndMeshes(glm::mat4, glm::mat4);
-	void UpdateObjectTransforms();
 	void IMGUI_Logic();
 };

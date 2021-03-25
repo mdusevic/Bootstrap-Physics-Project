@@ -83,8 +83,6 @@ void GraphicsProjectApp::update(float deltaTime)
 
 	m_scene->GetLight().m_direction = glm::normalize(glm::vec3(glm::cos(time * 2), glm::sin(time * 2), 0));
 
-	//SolarSystem(deltaTime);
-
 	// quit if we press escape
 	aie::Input* input = aie::Input::getInstance();
 
@@ -157,157 +155,33 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 
 #pragma endregion
 
-//#pragma region FlatBunny
-//	m_bunnyShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
-//
-//	// Load the fragment shader from a file
-//	m_bunnyShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-//
-//	if (!m_bunnyShader.link())
-//	{
-//		printf("Bunny Shader had an error: %s\n", m_bunnyShader.getLastError());
-//		return false;
-//	}
-//
-//	if (m_bunnyMesh.load("./stanford/bunny.obj") == false)
-//	{
-//		printf("Bunny Mesh Failed!\n");
-//		return false;
-//	}
-//
-//	m_bunnyPos = { -8, 0, 0 };
-//
-//#pragma endregion
-//
-//#pragma region Dragon
-//	m_dragonShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
-//
-//	// Load the fragment shader from a file
-//	m_dragonShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-//
-//	if (!m_dragonShader.link())
-//	{
-//		printf("Dragon Shader had an error: %s\n", m_dragonShader.getLastError());
-//		return false;
-//	}
-//
-//	if (m_dragonMesh.load("./stanford/dragon.obj") == false)
-//	{
-//		printf("Dragon Mesh Failed!\n");
-//		return false;
-//	}
-//
-//	m_dragonPos = { -2, 0, 0 };
-//
-//#pragma endregion
-//
-//#pragma region Buddha
-//	m_buddhaShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
-//
-//	// Load the fragment shader from a file
-//	m_buddhaShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-//
-//	if (!m_buddhaShader.link())
-//	{
-//		printf("Buddha Shader had an error: %s\n", m_buddhaShader.getLastError());
-//		return false;
-//	}
-//
-//	if (m_buddhaMesh.load("./stanford/buddha.obj") == false)
-//	{
-//		printf("Dragon Mesh Failed!\n");
-//		return false;
-//	}
-//
-//	m_buddhaPos = { 3, 0, 0 };
-//
-//#pragma endregion
-//
-//#pragma region Lucy
-//	m_lucyShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/simple.vert");
-//
-//	// Load the fragment shader from a file
-//	m_lucyShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-//
-//	if (!m_lucyShader.link())
-//	{
-//		printf("Buddha Shader had an error: %s\n", m_lucyShader.getLastError());
-//		return false;
-//	}
-//
-//	if (m_lucyMesh.load("./stanford/lucy.obj") == false)
-//	{
-//		printf("Lucy Mesh Failed!\n");
-//		return false;
-//	}
-//
-//	m_lucyPos = { 6, 0, 0 };
-//
-//#pragma endregion
-//
-//
-//
-//#pragma region Grenade
-//	m_grenadeShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
-//
-//	// Load the fragment shader from a file
-//	m_grenadeShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
-//
-//	if (!m_grenadeShader.link())
-//	{
-//		printf("Grenade Shader had an error: %s\n", m_grenadeShader.getLastError());
-//		return false;
-//	}
-//
-//	if (m_grenadeMesh.load("./grenade/uploads_files_2503290_Hand_Grenade.obj", true, true) == false)
-//	{
-//		printf("Grenade Mesh Failed!\n");
-//		return false;
-//	}
-//
-//	m_grenadePos = { -6, 0, 6 };
-//
-//#pragma endregion
+#pragma region Dragon
 
-#pragma region Baby Yoda
-	m_yodaShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
-
-	// Load the fragment shader from a file
-	m_yodaShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
-
-	if (!m_yodaShader.link())
+	if (m_dragonMesh.load("./stanford/dragon.obj") == false)
 	{
-		printf("Yoda Shader had an error: %s\n", m_yodaShader.getLastError());
+		printf("Dragon Mesh Failed!\n");
 		return false;
 	}
 
-	if (m_yodaMesh.load("./babyyoda/baby_yoda.obj", true, true) == false)
+#pragma endregion
+
+#pragma region Grenade
+
+	if (m_grenadeMesh.load("./grenade/uploads_files_2503290_Hand_Grenade.obj", true, true) == false)
 	{
-		printf("Baby yoda Mesh Failed!\n");
+		printf("Grenade Mesh Failed!\n");
 		return false;
 	}
 
 #pragma endregion
 
 #pragma region SoulSpear
-	m_spearShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
-	
-	// Load the fragment shader from a file
-	m_spearShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
-	
-	if (!m_spearShader.link())
-	{
-		printf("Spear Shader had an error: %s\n", m_spearShader.getLastError());
-		return false;
-	}
-	
+
 	if (m_spearMesh.load("./soulspear/soulspear.obj", true, true) == false)
 	{
 		printf("Soul spear Mesh Failed!\n");
 		return false;
 	}
-	
-	m_spearPos = { -4, 0, 4 };
 
 #pragma endregion
 
@@ -367,17 +241,25 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 		m_scene->AddInstance(new Instance("Spear" + std::to_string(count) , glm::vec3(i * 2, 0, 0), glm::vec3(0, i * 30, 0), glm::vec3(1, 1, 1), &m_spearMesh, &m_normalMapShader));
 	}
 
-	// Baby Yoda
-	//m_scene->AddInstance(new Instance("Yoda", glm::vec3(5, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0.2, 0.2, 0.2), &m_yodaMesh, &m_normalMapShader));
+	// Dragon
+	m_scene->AddInstance(new Instance("Dragon", glm::vec3(5, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0.4, 0.4, 0.4), &m_dragonMesh, &m_phongShader));
+
+	// Grenade
+	m_scene->AddInstance(new Instance("Grenade", glm::vec3(5, 0, 5), glm::vec3(0, 0, 0), glm::vec3(20, 20, 20), &m_grenadeMesh, &m_normalMapShader));
 
 #pragma endregion
 
+#pragma region Lights
+
 	// Add a red light on the left side
-	m_scene->GetPointLights().push_back(Light(vec3(5, 3, 0), vec3(1, 0, 0), 50));
+	m_scene->GetPointLights().push_back(Light(vec3(5, 3, 0), vec3(1, 0, 0), 50)); 
 	// Add a green light on the right side
 	m_scene->GetPointLights().push_back(Light(vec3(-5, 3, 0), vec3(0, 1, 0), 50));
 
 	return true;
+
+#pragma endregion
+
 }
 
 //void GraphicsProjectApp::DrawShaderAndMeshes(glm::mat4 a_projectionMatrix, glm::mat4 a_viewMatrix)
@@ -571,65 +453,6 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 //
 //}
 
-void GraphicsProjectApp::UpdateObjectTransforms()
-{
-	// --- BUNNY ---
-	m_bunnyTransform = {
-		0.5f,     0,     0,  0,
-		   0,  0.5f,     0,  0,
-		   0,     0,  0.5f,  0,
-	    m_bunnyPos.x, m_bunnyPos.y, m_bunnyPos.z, 1
-	};
-	
-	// --- DRAGON ---
-	m_dragonTransform = {
-		0.5f,     0,     0,  0,
-		   0,  0.5f,     0,  0,
-		   0,     0,  0.5f,  0,
-	    m_dragonPos.x, m_dragonPos.y, m_dragonPos.z, 1
-	};
-
-	// --- BUDDHA ---
-	m_buddhaTransform = {
-		 0.5f,     0,     0,  0,
-			0,  0.5f,     0,  0,
-			0,     0,  0.5f,  0,
-		 m_buddhaPos.x, m_buddhaPos.y, m_buddhaPos.z, 1
-	};
-
-	// --- LUCY ---
-	m_lucyTransform = {
-		0.5f,     0,     0,  0,
-		   0,  0.5f,     0,  0,
-		   0,     0,  0.5f,  0,
-	    m_lucyPos.x, m_lucyPos.y, m_lucyPos.z, 1
-	};
-
-	// --- SOUL SPEAR ---
-	m_spearTransform = {
-		1.0f,     0,     0,  0,
-		   0,  1.0f,     0,  0,
-		   0,     0,  1.0f,  0,
-		m_spearPos.x, m_spearPos.y, m_spearPos.z, 1
-	};
-
-	// --- BABY YODA ---
-	m_yodaTransform = {
-		0.2f,     0,     0,  0,
-		   0,  0.2f,     0,  0,
-		   0,     0,  0.2f,  0,
-		m_yodaPos.x, m_yodaPos.y, m_yodaPos.z, 1
-	};
-
-	// --- GRENADE ---
-	m_grenadeTransform = {
-		10.0f,       0,      0,  0,
-		    0,   10.0f,      0,  0,
-		    0,       0,  10.0f,  0,
-		m_grenadePos.x, m_grenadePos.y, m_grenadePos.z, 1
-	};
-}
-
 void GraphicsProjectApp::IMGUI_Logic() 
 {
 	ImGui::Begin("Scene Light Settings");
@@ -637,7 +460,7 @@ void GraphicsProjectApp::IMGUI_Logic()
 	ImGui::DragFloat3("Sunlight Color", &m_scene->GetLight().m_color[0], 0.1f, 0.0f, 2.0f);
 	ImGui::End();
 
-	ImGui::Begin("Inspector");
+	ImGui::Begin("Objects");
 	
 	std::vector<Instance*> Objects;
 	for (Instance* const& c : m_scene->GetAllInstances())
@@ -654,12 +477,7 @@ void GraphicsProjectApp::IMGUI_Logic()
 		glm::vec4 perspective;
 
 		glm::decompose(obj->GetTransform(), scale, rotation, translation, skew, perspective);
-		rotation = glm::conjugate(rotation);
-		glm::vec3 rot = glm::eulerAngles(rotation);
-
-		//glm::vec3 objPos = translation;
-		//glm::vec3 objRot = glm::eulerAngles(rotation);
-		//glm::vec3 objScale = scale;
+		glm::vec3 rot = obj->GetRotation();
 
 		if (ImGui::CollapsingHeader(obj->GetObjectName().c_str()))
 		{
@@ -671,9 +489,9 @@ void GraphicsProjectApp::IMGUI_Logic()
 
 				}
 
-				if (ImGui::DragFloat3("Rotation:", &rot[0], 0.1f, 0.0f, 360.0f))
+				if (ImGui::DragFloat3("Rotation:", &rot[0], 0.1f, -180.0f, 180.0f))
 				{
-
+					obj->SetRotation(rot);
 				}
 
 				if (ImGui::DragFloat3("Scale:", &scale[0], 0.1f))
@@ -683,15 +501,15 @@ void GraphicsProjectApp::IMGUI_Logic()
 
 				obj->SetTransform(obj->MakeTransform(translation, rot, scale));
 
-				std::cout << glm::to_string(rot) << std::endl;
-
 				ImGui::TreePop();
 			}
 			ImGui::Unindent();
 		}
 	}
+	
+	ImGui::End();
 
-	UpdateObjectTransforms();
+	ImGui::Begin("Lighting");
 
 	ImGui::End();
 }

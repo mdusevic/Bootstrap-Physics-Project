@@ -25,9 +25,13 @@ public:
 	glm::mat4 GetTransform() { return m_transform; }
 	void SetTransform(glm::mat4 a_transform) { m_transform = a_transform; }
 
+	glm::vec3 GetRotation() { return m_rotation; }
+	void SetRotation(glm::vec3 a_rotation) { m_rotation = a_rotation; }
+
 protected:
 	std::string m_name;
 	glm::mat4 m_transform;
+	glm::vec3 m_rotation;
 	aie::OBJMesh* m_mesh;
 	aie::ShaderProgram* m_shader;
 

@@ -21,6 +21,7 @@ Instance::Instance(std::string a_name, glm::vec3 a_position, glm::vec3 a_eulerAn
 {
 	m_name = a_name;
 	m_transform = MakeTransform(a_position, a_eulerAngles, a_scale);
+	m_rotation = a_eulerAngles;
 	m_mesh = a_mesh;
 	m_shader = a_shader;
 }

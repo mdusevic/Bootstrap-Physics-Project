@@ -2,7 +2,7 @@
 # Material Count: 1
 
 newmtl Grenade_Mat
-Ns 179.999996
+Ns 20.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.500000 0.500000 0.500000
 Ks 0.500000 0.500000 0.500000
@@ -10,5 +10,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump N_Hand_Grenade_2048.tga
 map_Kd T_Hand_Grenade_01_2048.tga
+map_Ks M_Hand_Grenade.tga
+bump N_Hand_Grenade_2048.tga

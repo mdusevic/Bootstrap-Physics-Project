@@ -28,6 +28,7 @@ void Scene::Draw()
 	{
 		m_pointLightPositions[i] = m_pointLights[i].m_direction;
 		m_pointLightColors[i] = m_pointLights[i].m_color;
+		aie::Gizmos::addSphere(m_pointLightPositions[i], 2.0f, 2, 2, m_pointLightColors[i]);
 	}
 
 	for (auto i = m_instances.begin(); i != m_instances.end(); i++)
