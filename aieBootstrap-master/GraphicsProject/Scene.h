@@ -3,6 +3,7 @@
 #include <list>
 #include <vector>
 #include <glm/glm.hpp>
+#include <string>
 
 class Camera;
 class Instance;
@@ -13,18 +14,29 @@ struct Light
 {
 	Light()
 	{
+		m_name = std::string("Light");
 		m_direction = glm::vec3(1);
 		m_color = glm::vec3(1);
+		m_intensity = 10.0f;
 	};
 
-	Light(glm::vec3 a_pos, glm::vec3 a_color, float a_intensity)
+	Light(std::string a_name, glm::vec3 a_pos, glm::vec3 a_color, float a_intensity)
 	{
+		m_name = a_name;
 		m_direction = a_pos;
-		m_color = a_color * a_intensity;
+		m_intensity = a_intensity;
+		m_color = a_color * m_intensity;
 	};
 
+	std::string GetLightName() { return m_name; };
+	glm::vec3& GetLightPosition() { return m_direction; }
+	glm::vec3& GetLightColor() { return m_color; }
+	float& GetLightIntensity() { return m_intensity; }
+
+	std::string m_name;
 	glm::vec3 m_direction;
 	glm::vec3 m_color;
+	float m_intensity;
 };
 
 class Scene
@@ -44,6 +56,7 @@ public:
 	int GetNumLights() { return (int)m_pointLights.size(); }
 	glm::vec3* GetPointLightPositions() { return &m_pointLightPositions[0]; }
 	glm::vec3* GetPointLightColors() { return &m_pointLightColors[0]; }
+	std::string* GetPointLightNames() { return &m_pointLightNames[0]; }
 
 	std::vector<Light>& GetPointLights() { return m_pointLights; }
 
@@ -58,6 +71,7 @@ protected:
 	glm::vec3 m_ambientLight;
 	std::list<Instance*> m_instances;
 
+	std::string m_pointLightNames[MAX_LIGHTS];
 	glm::vec3 m_pointLightPositions[MAX_LIGHTS];
 	glm::vec3 m_pointLightColors[MAX_LIGHTS];
 

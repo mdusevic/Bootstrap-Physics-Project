@@ -79,9 +79,7 @@ void GraphicsProjectApp::update(float deltaTime)
 
 	IMGUI_Logic();
 
-	float time = getTime();
-
-	m_scene->GetLight().m_direction = glm::normalize(glm::vec3(glm::cos(time * 2), glm::sin(time * 2), 0));
+	// m_scene->GetLight().m_direction = glm::normalize(glm::vec3(glm::cos(2 * m_time), glm::sin(2 * m_time), 0));
 
 	// quit if we press escape
 	aie::Input* input = aie::Input::getInstance();
@@ -252,9 +250,9 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 #pragma region Lights
 
 	// Add a red light on the left side
-	m_scene->GetPointLights().push_back(Light(vec3(5, 3, 0), vec3(1, 0, 0), 50)); 
+	m_scene->GetPointLights().push_back(Light("Red Light", glm::vec3(5, 3, 0), glm::vec3(1, 0, 0), 50));
 	// Add a green light on the right side
-	m_scene->GetPointLights().push_back(Light(vec3(-5, 3, 0), vec3(0, 1, 0), 50));
+	m_scene->GetPointLights().push_back(Light("Green Light", glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 50));
 
 	return true;
 
@@ -452,12 +450,13 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 //#pragma endregion
 //
 //}
-
+  
 void GraphicsProjectApp::IMGUI_Logic() 
 {
 	ImGui::Begin("Scene Light Settings");
 	ImGui::DragFloat3("Sunlight Direction", &m_scene->GetLight().m_direction[0], 0.1f, -1.0f, 1.0f);
 	ImGui::DragFloat3("Sunlight Color", &m_scene->GetLight().m_color[0], 0.1f, 0.0f, 2.0f);
+	ImGui::DragFloat3("Ambient Color", &m_scene->GetAmbientLight()[0], 0.1f, 0.0f, 2.0f);
 	ImGui::End();
 
 	ImGui::Begin("Objects");
@@ -484,17 +483,17 @@ void GraphicsProjectApp::IMGUI_Logic()
 			ImGui::Indent();
 			if (ImGui::TreeNode("Transform"))
 			{
-				if (ImGui::DragFloat3("Position:", &translation[0], 0.1f))
+				if (ImGui::DragFloat3("Position", &translation[0], 0.1f))
 				{
 
 				}
 
-				if (ImGui::DragFloat3("Rotation:", &rot[0], 0.1f, -180.0f, 180.0f))
+				if (ImGui::DragFloat3("Rotation", &rot[0], 0.1f, -180.0f, 180.0f))
 				{
 					obj->SetRotation(rot);
 				}
 
-				if (ImGui::DragFloat3("Scale:", &scale[0], 0.1f))
+				if (ImGui::DragFloat3("Scale", &scale[0], 0.1f))
 				{
 
 				}
@@ -510,6 +509,30 @@ void GraphicsProjectApp::IMGUI_Logic()
 	ImGui::End();
 
 	ImGui::Begin("Lighting");
+
+	for (auto i = m_scene->GetPointLights().begin(); i != m_scene->GetPointLights().end(); i++)
+	{
+		if (ImGui::CollapsingHeader(i->GetLightName().c_str()))
+		{
+			ImGui::Indent();
+			if (ImGui::TreeNode("Transform"))
+			{
+				ImGui::DragFloat3("Position", &i->GetLightPosition()[0], 0.1f);
+
+				ImGui::TreePop();
+			}
+			ImGui::Unindent();
+
+			ImGui::Indent();
+			if (ImGui::TreeNode("Color"))
+			{
+				ImGui::DragFloat3("Color", &i->GetLightColor()[0], 0.1f, 0.0f, 300.0f);
+
+				ImGui::TreePop();
+			}
+			ImGui::Unindent();
+		}
+	}
 
 	ImGui::End();
 }

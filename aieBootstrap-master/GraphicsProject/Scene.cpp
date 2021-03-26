@@ -26,9 +26,10 @@ void Scene::Draw()
 {
 	for (int i = 0; i < MAX_LIGHTS && i < m_pointLights.size(); i++)
 	{
+		m_pointLightNames[i] = m_pointLights[i].m_name;
 		m_pointLightPositions[i] = m_pointLights[i].m_direction;
 		m_pointLightColors[i] = m_pointLights[i].m_color;
-		aie::Gizmos::addSphere(m_pointLightPositions[i], 2.0f, 2, 2, m_pointLightColors[i]);
+		aie::Gizmos::addSphere(m_pointLightPositions[i], 0.5f, 8, 8, glm::vec4(m_pointLightColors[i].x, m_pointLightColors[i].y, m_pointLightColors[i].z, 1));
 	}
 
 	for (auto i = m_instances.begin(); i != m_instances.end(); i++)

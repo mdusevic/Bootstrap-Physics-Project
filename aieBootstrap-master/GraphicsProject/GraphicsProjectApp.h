@@ -51,14 +51,8 @@ protected:
 
 	Scene* m_scene;
 
-	//struct Light
-	//{
-	//	glm::vec3 direction;
-	//	glm::vec3 color;
-	//};
-
-	//Light m_light;
-	//glm::vec3 m_ambientLight;
+	// Light Time
+	float m_time = 0.5f;
 
 public:
 	bool LoadShaderAndMeshLogic(Light a_light);
