@@ -22,6 +22,11 @@ void Scene::AddInstance(Instance* a_instance)
 	m_instances.push_back(a_instance);
 }
 
+void Scene::AddCamera(Camera* a_camera)
+{
+	m_cameras.push_back(a_camera);
+}
+
 void Scene::Draw()
 {
 	for (int i = 0; i < MAX_LIGHTS && i < m_pointLights.size(); i++)

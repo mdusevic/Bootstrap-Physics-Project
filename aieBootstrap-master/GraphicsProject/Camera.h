@@ -5,6 +5,7 @@ class Camera
 {
 public:
 	Camera();
+	Camera(glm::vec3 a_position, float a_xRot, float a_yRot, bool a_isFlybyCam);
 	~Camera() {};
 
 	void Update(float a_deltaTime);
@@ -16,8 +17,8 @@ public:
 	void SetFlybyCam(bool a_isFlyby) { m_isFlybyCam = a_isFlyby; }
 
 private:
-	float m_theta;  // In degrees
-	float m_phi;    // In degrees
+	float m_theta;  // In degrees x
+	float m_phi;    // In degrees y
 	glm::vec3 m_position;
 
 	bool m_isFlybyCam;

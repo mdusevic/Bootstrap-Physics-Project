@@ -46,12 +46,17 @@ public:
 	~Scene();
 
 	void AddInstance(Instance* a_instance);
+	void AddCamera(Camera* a_camera);
 	void Draw();
 
 	Camera* GetCamera() { return m_camera; }
+	void SetCamera(Camera* a_camera) { m_camera = a_camera; }
+
 	glm::vec2 GetWindowSize() { return m_windowSize; }
 	Light& GetLight() { return m_light; }
-	glm::vec3 GetAmbientLight() { return m_ambientLight; }
+	glm::vec3& GetAmbientLight() { return m_ambientLight; }
+
+	std::vector<Camera*> GetCameras() { return m_cameras; }
 
 	int GetNumLights() { return (int)m_pointLights.size(); }
 	glm::vec3* GetPointLightPositions() { return &m_pointLightPositions[0]; }
@@ -64,6 +69,7 @@ public:
 
 protected:
 	Camera* m_camera;
+	std::vector<Camera*> m_cameras;
 	glm::vec2 m_windowSize;
 	Light m_light;
 	Light m_sunLight;
