@@ -1,4 +1,17 @@
+/*
+ * File:	Camera.cpp
+ *
+ * Author: Mara Dusevic (s200494@students.aie.edu.au)
+ * Date Created: Thursday 11 March 2021
+ * Date Last Modified: Thursday 1 April 2021
+ *
+ * This file is used to create cameras with specific	
+ * inputted variables.
+ *
+ */
+
 #include "Camera.h"
+
 #include <glm/ext.hpp>
 #include <Input.h>
 
@@ -18,8 +31,10 @@ Camera::Camera(glm::vec3 a_position, float a_xRot, float a_yRot, bool a_isFlybyC
 	m_isFlybyCam = a_isFlybyCam;
 }
 
+// Update Function
 void Camera::Update(float a_deltaTime)
 {
+	// If camera is not a flyby camera, no movement will be given to it
 	if (!m_isFlybyCam)
 	{
 		return;
@@ -90,10 +105,9 @@ void Camera::Update(float a_deltaTime)
 	// Now store the frames last values for the next
 	m_lastMouseX = mX;
 	m_lastMouseY = mY;
-
-	
 }
 
+// Returns view matrix
 glm::mat4 Camera::GetViewMatrix()
 {
 	float thetaR = glm::radians(m_theta);
@@ -103,6 +117,7 @@ glm::mat4 Camera::GetViewMatrix()
 	return glm::lookAt(m_position, m_position + forward, glm::vec3(0, 1, 0));
 }
 
+// Returns projection matrix
 glm::mat4 Camera::GetProjectionMatrix(float a_width, float a_height)
 {
 	return glm::perspective(glm::pi<float>() * 0.25f, a_width / a_height, 0.1f, 1000.0f);

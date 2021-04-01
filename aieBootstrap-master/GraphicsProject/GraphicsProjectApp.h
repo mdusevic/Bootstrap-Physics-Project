@@ -1,3 +1,16 @@
+/*
+ * File:	GraphicsProjectApp.h
+ *
+ * Author: Mara Dusevic (s200494@students.aie.edu.au)
+ * Date Created: Wednesday 10 March 2021
+ * Date Last Modified Thursday 1 April 2021
+ *
+ * This file creates the variables used in the corresponding
+ * .cpp file that displays the features implemented in the
+ * graphics engine.
+ *
+ */
+
 #pragma once
 
 #include "Application.h"
@@ -16,10 +29,13 @@ public:
 	GraphicsProjectApp();
 	virtual ~GraphicsProjectApp();
 
+	// Startup Function
 	virtual bool startup();
+	// Shutdown Function
 	virtual void shutdown();
-
+	// Update Function
 	virtual void update(float deltaTime);
+	// Draw Function
 	virtual void draw();
 
 protected:
@@ -31,7 +47,7 @@ protected:
 
 	aie::Texture m_gridTexture;
 
-	// --- SHADER ---
+	// ------ SHADERS ------
 	aie::ShaderProgram m_simpleShader;
 	aie::ShaderProgram m_dragonShader;
 	aie::ShaderProgram m_spearShader;
@@ -40,20 +56,21 @@ protected:
 	aie::ShaderProgram m_textureShader;
 	aie::ShaderProgram m_normalMapShader;
 	aie::ShaderProgram m_postShader;
-	// --------------
+	// ---------------------
 
 	// Basic Plane
 	Mesh m_quadMesh;
 	glm::mat4 m_quadTransform;
 	// Fullscreen Quad
 	Mesh m_fullscreenQuad;
-	// Create a Dragon with a flat color
+	// Dragon mesh
 	aie::OBJMesh m_dragonMesh;
-	// Create a SoulSpear 
+	// SoulSpear mesh 
 	aie::OBJMesh m_spearMesh;
-	// Create a Grenade
+	// Grenade mesh
 	aie::OBJMesh m_grenadeMesh;
 
+	// Creates a new scene to display everything within
 	Scene* m_scene;
 
 	// Light Time
@@ -68,6 +85,9 @@ protected:
 	bool SwitchPostEffect = false;
 
 public:
+	// Loads shaders and meshes 
 	bool LoadShaderAndMeshLogic(Light a_light);
+
+	// Used to create an editor to edit things in scene
 	void IMGUI_Logic();
 };

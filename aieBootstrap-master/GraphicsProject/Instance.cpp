@@ -1,3 +1,15 @@
+/*
+ * File:	Instance.cpp
+ *
+ * Author: Mara Dusevic (s200494@students.aie.edu.au)
+ * Date Created: Thursday 18 March 2021
+ * Date Last Modified: Thursday 1 April 2021
+ *
+ * This file is used to create an instance of each object
+ * created with customisable variables.
+ *
+ */
+
 #include "Instance.h"
 #include "Scene.h"
 #include "OBJMESH.h"
@@ -26,6 +38,7 @@ Instance::Instance(std::string a_name, glm::vec3 a_position, glm::vec3 a_eulerAn
 	m_shader = a_shader;
 }
 
+// Draw Function
 void Instance::Draw(Scene* a_scene)
 {
 	m_shader->bind();
@@ -34,6 +47,7 @@ void Instance::Draw(Scene* a_scene)
 	auto pvm = a_scene->GetCamera()->GetProjectionMatrix(a_scene->GetWindowSize().x,
 		a_scene->GetWindowSize().y) * a_scene->GetCamera()->GetViewMatrix() * m_transform;
 
+	// Bind uniforms 
 	m_shader->bindUniform("ProjectionViewModel", pvm);
 	m_shader->bindUniform("CameraPosition", a_scene->GetCamera()->GetPosition());
 	m_shader->bindUniform("AmbientColor", a_scene->GetAmbientLight());
@@ -50,6 +64,7 @@ void Instance::Draw(Scene* a_scene)
 	m_mesh->draw();
 }
 
+// Returns a new matrix transform via specific variables
 glm::mat4 Instance::MakeTransform(glm::vec3 a_position, glm::vec3 a_eulerAngles, glm::vec3 a_scale)
 {
 	return glm::translate(glm::mat4(1), a_position)

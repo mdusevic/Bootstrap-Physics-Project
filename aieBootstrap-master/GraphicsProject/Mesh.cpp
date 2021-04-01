@@ -1,3 +1,14 @@
+/*
+ * File:	Mesh.cpp
+ *
+ * Author: Mara Dusevic (s200494@students.aie.edu.au)
+ * Date Created: Wednesday 10 March 2021
+ * Date Last Modified Thursday 1 April 2021
+ *
+ * This file is used to create meshes for quads.
+ *
+ */
+
 #include "Mesh.h"
 
 #include <gl_core_4_4.h>
@@ -9,6 +20,7 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &ibo);
 }
 
+// Initialisation of a quad with set vertices
 void Mesh::InitialiseQuad()
 {
 	// Check that mesh has not been initialised already
@@ -71,6 +83,7 @@ void Mesh::InitialiseQuad()
 	triCount = 2;
 }
 
+// Initialisation of a quad to cover and fill up screen
 void Mesh::InitialiseFullscreenQuad()
 {
 	assert(vao == 0);
@@ -110,6 +123,7 @@ void Mesh::InitialiseFullscreenQuad()
 	triCount = 2;
 }
 
+// Initialisation of a quad with variables that can be edited
 void Mesh::Initialise(unsigned int a_vertexCount, const Vertex* a_vertices, unsigned int a_indexCount, unsigned int* a_indices)
 {
 	// Check that mesh has not been initialised already
@@ -156,6 +170,7 @@ void Mesh::Initialise(unsigned int a_vertexCount, const Vertex* a_vertices, unsi
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+// Draw Function
 void Mesh::Draw()
 {
 	glBindVertexArray(vao);

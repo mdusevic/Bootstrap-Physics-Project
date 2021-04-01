@@ -2,10 +2,11 @@
  * File:	GraphicsProjectApp.cpp
  *
  * Author: Mara Dusevic (s200494@students.aie.edu.au)
- * Date Created: Thursday 21 March
- * Date Last Modified:
+ * Date Created: Wednesday 10 March 2021
+ * Date Last Modified Thursday 1 April 2021
  *
- *
+ * This file displays a scene created to display the features
+ * added to the graphics engine.
  *
  */
 
@@ -41,6 +42,7 @@ GraphicsProjectApp::~GraphicsProjectApp()
 
 }
 
+// Startup Function
 bool GraphicsProjectApp::startup()
 {
 	setBackgroundColour(0.25f, 0.25f, 0.25f);
@@ -59,11 +61,13 @@ bool GraphicsProjectApp::startup()
 	return LoadShaderAndMeshLogic(light);
 }
 
+// Shutdown Function
 void GraphicsProjectApp::shutdown()
 {
 	Gizmos::destroy();
 }
 
+// Update Function
 void GraphicsProjectApp::update(float deltaTime)
 {
 	// Wipe the gizmos clean for this frame
@@ -113,10 +117,11 @@ void GraphicsProjectApp::update(float deltaTime)
 		m_camera = m_scene->GetCameras().at(m_cameraID);
 	}
 
-#pragma endregion
+	#pragma endregion
 
 }
 
+// Draw Function
 void GraphicsProjectApp::draw()
 {
 	if (EnablePostShader)
@@ -153,6 +158,7 @@ void GraphicsProjectApp::draw()
 	}
 }
 
+// Loads shaders and meshes
 bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 {
 
@@ -333,6 +339,7 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 	Camera* m_zAxisCam = new Camera(glm::vec3(0, 4, 20), -90.0f, 0.0f, false);
 	m_scene->AddCamera(m_zAxisCam);
 
+	// Default cam is flyby cam
 	m_camera = m_flybyCam;
 
 	return true;
@@ -341,42 +348,58 @@ bool GraphicsProjectApp::LoadShaderAndMeshLogic(Light a_light)
 
 }
   
+// Creates an editor at runtime to edit scene
 void GraphicsProjectApp::IMGUI_Logic() 
 {
 
 	#pragma region Scene Settings IMGUI
 
+	// Creates window to display settings to edit aspects that affect the whole scene
 	ImGui::Begin("Scene Settings");
+
+	// Scene Light Editor
 	if (ImGui::CollapsingHeader("Light Settings"))
 	{
 		ImGui::Indent();
+
+		// Edits directional light's direction
 		ImGui::DragFloat3("Sunlight Direction", &m_scene->GetLight().m_direction[0], 0.1f, -1.0f, 1.0f);
+		
+		// Edits directional light's colour
 		ImGui::DragFloat3("Sunlight Color", &m_scene->GetLight().m_color[0], 0.1f, 0.0f, 2.0f);
+		
+		// Edits the scene's ambient light colour
 		ImGui::DragFloat3("Ambient Color", &m_scene->GetAmbientLight()[0], 0.1f, 0.0f, 2.0f);
+		
 		ImGui::Unindent();
 	}
 
+	// Camera Editor
 	if (ImGui::CollapsingHeader("Camera Settings"))
 	{
 		ImGui::Indent();
+		// Changes scene camera to flybuy camera
 		if (ImGui::Button("Flybuy Camera"))
 		{
 			m_camera = m_scene->GetCameras().at(0);
 		}
 		ImGui::SameLine();
 		
+		// Changes scene camera to on x-axis
 		if (ImGui::Button("X-axis Camera"))
 		{
 			m_camera = m_scene->GetCameras().at(1);
 		}
 		ImGui::SameLine();
 		
+		// Changes scene camera to on y-axis
 		if (ImGui::Button("Y-axis Camera"))
 		{
 			m_camera = m_scene->GetCameras().at(2);
 		}
 		ImGui::SameLine();
 
+		// Changes scene camera to on z-axis
 		if (ImGui::Button("Z-axis Camera"))
 		{
 			m_camera = m_scene->GetCameras().at(3);
@@ -385,16 +408,20 @@ void GraphicsProjectApp::IMGUI_Logic()
 		ImGui::Unindent();
 	}
 
+	// Post-processing Editor
 	if (ImGui::CollapsingHeader("Post-processing Settings"))
 	{
+		// Used to turn on and off the post-processing
 		ImGui::Checkbox("Enable Post-processing", &EnablePostShader);
 
+		// Switches post-processing shader to distort the scene
 		if (ImGui::Button("Distort"))
 		{
 			SwitchPostEffect = false;
 		}
 		ImGui::SameLine();
 
+		// Switches post-processing shader to blur the scene
 		if (ImGui::Button("Blur"))
 		{
 			SwitchPostEffect = true;
@@ -404,20 +431,26 @@ void GraphicsProjectApp::IMGUI_Logic()
 
 	ImGui::End();
 
-#pragma endregion
+	#pragma endregion
 
 	#pragma region Object Inspector IMGUI
 
+	int a = 0;
+
+	// Creates window to display settings to edit objects' transforms in scene
 	ImGui::Begin("Objects");
 	
+	// Pushes all objects into new vector, allows for easier call of each object
 	std::vector<Instance*> Objects;
 	for (Instance* const& c : m_scene->GetAllInstances())
 	{
 		Objects.push_back(c);
 	}
 
+	// Loops through all objects
 	for each (auto obj in Objects)
 	{
+		// Uses glm::decompose to separate matrix into each individual variable
 		glm::vec3 scale = glm::vec3(1.0f);
 		glm::quat rotation = glm::quat();
 		glm::vec3 translation = glm::vec3(1.0f);
@@ -427,61 +460,118 @@ void GraphicsProjectApp::IMGUI_Logic()
 		glm::decompose(obj->GetTransform(), scale, rotation, translation, skew, perspective);
 		glm::vec3 rot = obj->GetRotation();
 
+		// PushID for header
+		ImGui::PushID(a);
+
+		// For each object, its name is used to create a collapsible header
 		if (ImGui::CollapsingHeader(obj->GetObjectName().c_str()))
 		{
 			ImGui::Indent();
+
+			// PushID for treenode
+			a++;
+			ImGui::PushID(a);
+
+			// Objects Transform Editor
 			if (ImGui::TreeNode("Transform"))
 			{
+				// Sets objects new position to editor value
 				ImGui::DragFloat3("Position", &translation[0], 0.1f);
 
+				// Sets objects new rotation to editor value
 				if (ImGui::DragFloat3("Rotation", &rot[0], 0.1f, -180.0f, 180.0f))
 				{
 					obj->SetRotation(rot);
 				}
 
+				// Sets objects new scale to editor value
 				ImGui::DragFloat3("Scale", &scale[0], 0.1f);
 
+				// Sets the object's new transform with all editor values
 				obj->SetTransform(obj->MakeTransform(translation, rot, scale));
 
 				ImGui::TreePop();
 			}
+
 			ImGui::Unindent();
+			
+			// PopID for treenode
+			ImGui::PopID();
 		}
+
+		// PopID for header
+		ImGui::PopID();
+		a++;
 	}
 	
 	ImGui::End();
 
-#pragma endregion
+	#pragma endregion
 	
 	#pragma region Lighting Inspector IMGUI
+
+	// Creates window to display settings to edit individual lights in scene
 	ImGui::Begin("Lighting");
 
+	a++;
+
+	// Loops through all point lights 
 	for (auto i = m_scene->GetPointLights().begin(); i != m_scene->GetPointLights().end(); i++)
 	{
+		// PushID for header
+		ImGui::PushID(a);
+
+		// For each light, its name is used to create a collapsible header
 		if (ImGui::CollapsingHeader(i->GetLightName().c_str()))
 		{
 			ImGui::Indent();
+
+			// PushID for treenode
+			a++;
+			ImGui::PushID(a);
+
+			// Lights Transform Editor
 			if (ImGui::TreeNode("Transform"))
 			{
+				// Sets lights new position to editor value
 				ImGui::DragFloat3("Position", &i->GetLightPosition()[0], 0.1f);
 
 				ImGui::TreePop();
 			}
+
+			// PopID for treenode
+			ImGui::PopID();
+
 			ImGui::Unindent();
 
 			ImGui::Indent();
+
+			// PushID for treenode
+			a++;
+			ImGui::PushID(a);
+
+			// Lights Colour Editor
 			if (ImGui::TreeNode("Color"))
 			{
+				// Sets lights new colour to editor value
 				ImGui::DragFloat3("Color", &i->GetLightColor()[0], 0.1f, 0.0f, 300.0f);
 
 				ImGui::TreePop();
 			}
+
+			// PopID for treenode
+			ImGui::PopID();
+
 			ImGui::Unindent();
 		}
+		
+		// PopID for header
+		ImGui::PopID();
+		a++;
 	}
 
 	ImGui::End();
 
-#pragma endregion
+	#pragma endregion
 
 }
