@@ -404,7 +404,7 @@ void GraphicsProjectApp::IMGUI_Logic()
 		{
 			m_camera = m_scene->GetCameras().at(3);
 		}
-		ImGui::SameLine();
+
 		ImGui::Unindent();
 	}
 
